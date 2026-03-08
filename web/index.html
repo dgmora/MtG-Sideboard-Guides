@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MtG Sideboard Guide Generator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>Sideboard Guide</h1>
+        <p class="subtitle">Magic: The Gathering</p>
+      </div>
+
+      <div class="controls">
+        <div class="control-row">
+          <label for="deck-select">Deck</label>
+          <select id="deck-select">
+            <option value="">— paste data to begin —</option>
+          </select>
+        </div>
+
+        <div class="button-row">
+          <button id="load-btn" class="btn btn-secondary">Load File</button>
+          <input type="file" id="file-input" accept=".txt" style="display:none">
+          <button id="save-btn" class="btn btn-secondary">Save Data</button>
+        </div>
+      </div>
+
+      <div class="textarea-wrapper">
+        <label for="data-input">
+          Sideboard Data
+          <span class="label-hint">TSV: deck · opponent · card · maindeck · delta</span>
+        </label>
+        <textarea id="data-input" spellcheck="false" placeholder="Paste your sideboards.txt data here, or click Load File.
+
+Expected format (tab-separated):
+deck	opponent	card	maindeck	delta
+
+Example:
+Death and Taxes	Delver	Phyrexian Revoker	1	-3
+Death and Taxes	Delver	Path to Exile	0	+1"></textarea>
+      </div>
+    </aside>
+
+    <main class="preview-area">
+      <div class="preview-header">
+        <span id="preview-label" class="preview-title">Preview</span>
+        <button id="download-btn" class="btn btn-primary" disabled>Download SVG</button>
+      </div>
+
+      <div id="svg-container" class="svg-container">
+        <div class="empty-state">
+          <div class="empty-icon">⬡</div>
+          <p>Paste sideboard data on the left to generate a guide.</p>
+          <p class="empty-hint">Supports multiple decks — use the dropdown to switch.</p>
+        </div>
+      </div>
+    </main>
+
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
