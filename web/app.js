@@ -2,6 +2,7 @@
 
 const textarea    = document.getElementById('data-input');
 const deckSelect  = document.getElementById('deck-select');
+const namesOutside = document.getElementById('names-outside');
 const svgContainer = document.getElementById('svg-container');
 const downloadBtn = document.getElementById('download-btn');
 const loadBtn     = document.getElementById('load-btn');
@@ -30,7 +31,7 @@ function renderPreview() {
     return;
   }
 
-  const { cards, decks, data, firstSideboard } = buildPivot(records, deck);
+  const { cards, decks, faces, data, firstSideboard } = buildPivot(records, deck);
 
   if (cards.length === 0 || decks.length === 0) {
     svgContainer.innerHTML = `
@@ -43,12 +44,14 @@ function renderPreview() {
     return;
   }
 
-  currentSVG  = generateSVG(deck, cards, decks, data, firstSideboard);
+  currentSVG  = faces.length > 1
+    ? generateFoldSVG(deck, cards, faces, data, firstSideboard, namesOutside.checked)
+    : generateSVG(deck, cards, decks, data, firstSideboard);
   currentDeck = deck;
   svgContainer.innerHTML = currentSVG;
   downloadBtn.disabled = false;
   const offBalance = unbalanced(records, deck);
-  previewLabel.textContent = offBalance.length ? `${deck} — doesn't add up: ${offBalance.join(', ')}` : deck;
+  previewLabel.textContent = offBalance.length ? `${deck} — too many cards in: ${offBalance.join(', ')}` : deck;
 }
 
 function refreshDeckList() {
@@ -86,6 +89,7 @@ textarea.addEventListener('input', () => {
 });
 
 deckSelect.addEventListener('change', renderPreview);
+namesOutside.addEventListener('change', renderPreview);
 
 // Load from file
 loadBtn.addEventListener('click', () => fileInput.click());

@@ -33,29 +33,24 @@ function parseLong(lines) {
 }
 
 /**
- * A blank header column splits the matchups onto separate cards, named
- * "<deck> (1/2)", "<deck> (2/2)". A card in both main and sideboard gets a row
- * in each section: cuts come from the main copies, additions from the sideboard.
+ * A blank header column splits the matchups onto the two faces of a folded card.
+ * A card in both main and sideboard gets a row in each section: cuts come from
+ * the main copies, additions from the sideboard.
  * A '*' or '?' on a value marks an optional change.
  */
 function parseMatrix(lines) {
   const header = lines[0].split('\t').map(s => s.trim());
   const title  = header[2];
 
-  const groups = [[]];
+  const columnFace = {};
+  let face = 0;
   for (let i = 3; i < header.length; i++) {
-    if (header[i]) groups[groups.length - 1].push(i);
-    else if (groups[groups.length - 1].length) groups.push([]);
+    if (header[i]) columnFace[i] = face;
+    else if (Object.values(columnFace).includes(face)) face++;
   }
-  const usedGroups = groups.filter(g => g.length);
-  const columnDeck = {};
-  usedGroups.forEach((cols, gi) => {
-    const deck = usedGroups.length > 1 ? `${title} (${gi + 1}/${usedGroups.length})` : title;
-    for (const i of cols) columnDeck[i] = deck;
-  });
 
   // Card-less records keep every opponent column, in header order, even without changes
-  const records = Object.keys(columnDeck).map(i => ({ deck: columnDeck[i], opponent: header[i], card: null }));
+  const records = Object.keys(columnFace).map(i => ({ deck: title, opponent: header[i], face: columnFace[i], card: null }));
   for (const line of lines.slice(1)) {
     const cells = line.split('\t').map(s => s.trim());
     const md   = parseInt(cells[0], 10) || 0;
@@ -64,13 +59,14 @@ function parseMatrix(lines) {
     if (!name || name.toLowerCase() === 'total') continue;
 
     cells.forEach((value, i) => {
-      if (!columnDeck[i]) return;
+      if (!(i in columnFace)) return;
       const n = parseInt(value.replace(/[^0-9-]/g, ''), 10);
       if (!n) return;
       const fromSideboard = sb > 0 && (n > 0 || md === 0);
       records.push({
-        deck:     columnDeck[i],
+        deck:     title,
         opponent: header[i],
+        face:     columnFace[i],
         card:     `${fromSideboard ? sb : md} ${name}`,
         name,
         maindeck: fromSideboard ? 0 : 1,
@@ -98,6 +94,7 @@ function getDecks(records) {
  *   cards          – rows, sorted maindeck-first then alphabetically
  *   decks          – opponent column headers, in order of first appearance
  *   data           – data[opponent][card] = delta string
+ *   faces          – opponents split per card face
  *   firstSideboard – index of the first sideboard row, -1 if none
  */
 function buildPivot(records, deckName) {
@@ -106,8 +103,12 @@ function buildPivot(records, deckName) {
   // Unique opponents in appearance order
   const seenOpp = new Set();
   const decks = [];
+  const faces = [];
   for (const r of allDeckRecords) {
-    if (!seenOpp.has(r.opponent)) { seenOpp.add(r.opponent); decks.push(r.opponent); }
+    if (seenOpp.has(r.opponent)) continue;
+    seenOpp.add(r.opponent);
+    decks.push(r.opponent);
+    (faces[r.face || 0] ||= []).push(r.opponent);
   }
 
   const deckRecords = allDeckRecords.filter(r => r.card);
@@ -129,11 +130,11 @@ function buildPivot(records, deckName) {
 
   const firstSideboard = cards.findIndex(c => !cardInfo[c].maindeck);
 
-  return { cards, decks, data, firstSideboard };
+  return { cards, decks, faces, data, firstSideboard };
 }
 
 /**
- * Matchups whose changes don't add up to zero, as "opponent ±n".
+ * Matchups that bring in more cards than they take out, as "opponent +n".
  */
 function unbalanced(records, deckName) {
   const totals = {};
@@ -141,8 +142,8 @@ function unbalanced(records, deckName) {
     totals[r.opponent] = (totals[r.opponent] || 0) + (parseInt(r.delta, 10) || 0);
   }
   return Object.entries(totals)
-    .filter(([, n]) => n !== 0)
-    .map(([opp, n]) => `${opp} ${n > 0 ? '+' : ''}${n}`);
+    .filter(([, n]) => n > 0)
+    .map(([opp, n]) => `${opp} +${n}`);
 }
 
 // ─── SVG Generation ───────────────────────────────────────────────────────────
@@ -242,11 +243,8 @@ function generateSVG(deckName, cards, decks, data, firstSideboard = -1) {
       const value = (data[decks[xi]] && data[decks[xi]][cards[yi]]) || '';
       if (!value) continue;
 
-      // Red for cuts (negative), green for additions (positive); optional ones faded
-      const color    = value.includes('-') ? '#6C1600' : '#166C00';
-      const optional = value.includes('*') ? 'font-style:italic;fill-opacity:0.45;' : '';
       lines.push(`    <text x="${cellX}" y="${cellY}" ` +
-        `style="font-size:32px;font-family:sans-serif;text-anchor:middle;${optional}fill:${color}">` +
+        `style="font-size:32px;font-family:sans-serif;text-anchor:middle;${valueStyle(value)}">` +
         `${escapeXml(value.replace('*', ''))}</text>`);
     }
   }
@@ -257,6 +255,94 @@ function generateSVG(deckName, cards, decks, data, firstSideboard = -1) {
   return lines.join('\n');
 }
 
+// Red for cuts, green for additions; optional ones faded
+function valueStyle(value) {
+  const color = value.includes('-') ? '#6C1600' : '#166C00';
+  return (value.includes('*') ? 'font-style:italic;fill-opacity:0.45;' : '') + `fill:${color}`;
+}
+
+// ─── Fold Sheet ───────────────────────────────────────────────────────────────
+
+const FOLD = { font: 34, valueFont: 30, row: 46, col: 50, pad: 24, title: 64 };
+
+// ponytail: estimated sans-serif width, measure with getBBox if labels get clipped
+const textWidth = (s, size) => s.length * size * 0.56;
+
+/**
+ * Two 63 × 88 mm card faces side by side on one 126 × 88 mm sheet, to fold in
+ * the middle. Both faces share the same rows. With namesOutside, the right
+ * face puts card names on its right edge.
+ */
+function generateFoldSVG(title, cards, faces, data, firstSideboard, namesOutside = false) {
+  const { font, row, col, pad } = FOLD;
+  const nameW   = Math.max(...[...cards, 'Total'].map(c => textWidth(c, font))) + 16;
+  const headerH = Math.max(...faces.flat().map(o => textWidth(o, font))) + 16;
+  const faceW   = pad * 2 + nameW + Math.max(...faces.map(f => f.length)) * col;
+  const tableY  = pad + FOLD.title + headerH;
+  const faceH   = tableY + (cards.length + 1) * row + pad;
+
+  // 10 units per mm
+  const halfW = 630, sheetH = 880;
+  const scale = Math.min(halfW / faceW, sheetH / faceH);
+
+  const lines = [
+    `<?xml version="1.0" encoding="UTF-8"?>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" width="126mm" height="88mm" viewBox="0 0 ${halfW * 2} ${sheetH}">`,
+    `  <rect width="${halfW * 2}" height="${sheetH}" fill="#ffffff" stroke="#bbbbbb" stroke-width="2"/>`,
+    `  <line x1="${halfW}" y1="0" x2="${halfW}" y2="${sheetH}" stroke="#bbbbbb" stroke-width="2" stroke-dasharray="12,10"/>`,
+  ];
+
+  faces.forEach((opponents, fi) => {
+    const namesRight = namesOutside && fi === 1;
+    const x0 = fi * halfW + (halfW - faceW * scale) / 2;
+    const y0 = (sheetH - faceH * scale) / 2;
+    const tableW = nameW + opponents.length * col;
+    const left   = (faceW - tableW) / 2;
+    const colsX  = namesRight ? left : left + nameW;
+    const nameX  = namesRight ? colsX + opponents.length * col + 12 : colsX - 12;
+    const anchor = namesRight ? 'start' : 'end';
+    const bottom = tableY + (cards.length + 1) * row;
+
+    lines.push(`  <g transform="translate(${x0.toFixed(1)},${y0.toFixed(1)}) scale(${scale.toFixed(4)})" font-family="sans-serif">`);
+    lines.push(`    <text x="${faceW / 2}" y="${pad + FOLD.title * 0.8}" font-size="52" text-anchor="middle">${escapeXml(title)}</text>`);
+
+    opponents.forEach((opp, i) => {
+      const x = colsX + i * col;
+      if (i % 2 === 0) lines.push(`    <rect x="${x + 2}" y="${tableY - headerH}" width="${col - 4}" height="${bottom - tableY + headerH}" fill="#ececec"/>`);
+      const tx = x + col / 2 + font * 0.35;
+      lines.push(`    <text x="${tx}" y="${tableY - 8}" transform="rotate(-90,${tx},${tableY - 8})" font-size="${font}">${escapeXml(opp)}</text>`);
+    });
+
+    const rowLabels = [...cards, 'Total'];
+    rowLabels.forEach((label, ri) => {
+      const y = tableY + ri * row;
+      const thick = (ri === firstSideboard && ri > 0) || ri === cards.length;
+      lines.push(`    <line x1="${left}" y1="${y}" x2="${left + tableW}" y2="${y}" stroke="rgb(40,40,40)" ` +
+        `stroke-width="${thick ? 4 : 2}" stroke-opacity="${thick ? 0.8 : 0.2}"/>`);
+      lines.push(`    <text x="${nameX}" y="${y + row * 0.72}" font-size="${font}" text-anchor="${anchor}">${escapeXml(label)}</text>`);
+    });
+
+    opponents.forEach((opp, i) => {
+      const cx = colsX + i * col + col / 2;
+      cards.forEach((card, ri) => {
+        const value = data[opp][card];
+        if (!value) return;
+        lines.push(`    <text x="${cx}" y="${tableY + ri * row + row * 0.7}" font-size="${FOLD.valueFont}" text-anchor="middle" ` +
+          `style="${valueStyle(value)}">${escapeXml(value.replace('*', ''))}</text>`);
+      });
+      const total = cards.reduce((sum, card) => sum + (parseInt(data[opp][card], 10) || 0), 0);
+      const style = total > 0 ? 'font-weight:bold;fill:#C00000' : 'fill:#888888';
+      lines.push(`    <text x="${cx}" y="${tableY + cards.length * row + row * 0.7}" font-size="${FOLD.valueFont}" text-anchor="middle" ` +
+        `style="${style}">${total > 0 ? '+' : ''}${total}</text>`);
+    });
+
+    lines.push(`  </g>`);
+  });
+
+  lines.push(`</svg>`);
+  return lines.join('\n');
+}
+
 if (typeof module === 'object') {
-  module.exports = { parseData, getDecks, buildPivot, unbalanced, generateSVG };
+  module.exports = { parseData, getDecks, buildPivot, unbalanced, generateSVG, generateFoldSVG };
 }

@@ -11,19 +11,19 @@ const matrix = [
 ].join('\n');
 
 const records = parseData(matrix);
-assert.deepStrictEqual(getDecks(records), ['Example (1/2)', 'Example (2/2)']);
+assert.deepStrictEqual(getDecks(records), ['Example']);
 
-const stasis = buildPivot(records, 'Example (1/2)');
-assert.deepStrictEqual(stasis.cards, ['4 Swords to Plowshares', '2 Abeyance', '4 Meddling Mage']);
-assert.deepStrictEqual(stasis.decks, ['Stasis', 'Elves']);
-assert.strictEqual(stasis.firstSideboard, 1);
-assert.deepStrictEqual(stasis.data.Stasis, {
+const pivot = buildPivot(records, 'Example');
+assert.deepStrictEqual(pivot.faces, [['Stasis', 'Elves'], ['Goblins']]);
+assert.deepStrictEqual(pivot.cards, ['1 Abeyance', '4 Swords to Plowshares', '2 Abeyance', '4 Meddling Mage']);
+assert.strictEqual(pivot.firstSideboard, 2);
+assert.deepStrictEqual(pivot.data.Stasis, {
   '2 Abeyance': '+2', '4 Swords to Plowshares': '-4', '4 Meddling Mage': '+2*',
 });
-assert.deepStrictEqual(buildPivot(records, 'Example (2/2)').cards, ['1 Abeyance', '4 Meddling Mage']);
+assert.deepStrictEqual(pivot.data.Goblins, { '1 Abeyance': '-1', '4 Meddling Mage': '+1' });
 
-assert.deepStrictEqual(unbalanced(records, 'Example (1/2)'), []);
-assert.deepStrictEqual(unbalanced(parseData('md\tsb\tX\tElves\n4\t\tIsland\t-1'), 'X'), ['Elves -1']);
+assert.deepStrictEqual(unbalanced(records, 'Example'), []);
+assert.deepStrictEqual(unbalanced(parseData('md\tsb\tX\tElves\tAluren\n4\t\tIsland\t-1\t+1'), 'X'), ['Aluren +1']);
 
 const long = parseData('deck\topponent\tcard\tmaindeck\tdelta\nDnT\tDelver\tPath\t0\t+1');
 assert.deepStrictEqual(buildPivot(long, 'DnT').cards, ['Path']);
