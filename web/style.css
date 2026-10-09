@@ -343,6 +343,7 @@ textarea::placeholder {
 .preview-actions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 /* ── Share menu ──────────────────────────────────────────────────────────── */
