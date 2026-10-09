@@ -11,35 +11,55 @@ let records    = [];
 let currentSVG = '';
 let currentDeck = '';
 
+const EXAMPLE_SHEET = [
+  ['md', 'sb', 'Card', 'Delver', 'Burn', 'Reanimator', 'Storm', '', 'Elves', 'Lands', 'Show and Tell', 'Eldrazi'],
+  ['4', '', 'Swords to Plowshares', '', '', '', '-2', '', '', '-2', '-2'],
+  ['4', '', 'Thalia, Guardian of Thraben', '', '', '', '', '', '-1', '', '', '-2'],
+  ['3', '', 'Flickerwisp', '-1', '-2', '-1'],
+  ['2', '', 'Mirran Crusader', '', '', '-1', '-2', '', '', '', '-2'],
+  [],
+  ['', '2', 'Path to Exile', '+1', '', '', '', '', '+1*', '', '', '+2'],
+  ['', '2', 'Kor Firewalker', '', '+2'],
+  ['', '2', 'Rest in Peace', '', '', '+2'],
+  ['', '2', 'Ethersworn Canonist', '', '', '', '+2'],
+  ['', '2', 'Surgical Extraction', '', '', '', '+2'],
+  ['', '2', "Council's Judgment", '', '', '', '', '', '', '+2', '+2'],
+  ['', '2', 'Containment Priest', '', '', '', '', '', '', '', '+2'],
+].map(row => row.join('\t')).join('\n');
+
+function showExample() {
+  const { cards, faces, data, firstSideboard } = buildPivot(parseData(EXAMPLE_SHEET), '');
+  const example = document.getElementById('example-template').content.cloneNode(true);
+  example.querySelector('.example-card').innerHTML =
+    generateCardSVG('', cards, faces, data, firstSideboard, namesOutside.checked);
+  svgContainer.replaceChildren(example);
+}
+
 // ── Render ────────────────────────────────────────────────────────────────────
 
 function renderPreview() {
-  const deck = deckSelect.value;
+  const deck  = deckSelect.value;
+  const pivot = getDecks(records).includes(deck) && buildPivot(records, deck);
 
-  if (!getDecks(records).includes(deck)) {
-    svgContainer.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">⬡</div>
-        <p>Paste your sideboard guide on the left to see the card.</p>
-      </div>`;
-    downloadBtn.disabled = true;
+  if (!pivot || pivot.cards.length === 0) {
     currentSVG = '';
-    previewLabel.textContent = 'Preview';
+    downloadBtn.disabled = true;
+    namesOutside.disabled = false;
+    if (textarea.value.trim()) {
+      previewLabel.textContent = 'Preview';
+      svgContainer.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">⬡</div>
+          <p>No cards found. Check the layout guide on the left.</p>
+        </div>`;
+    } else {
+      previewLabel.textContent = 'Example';
+      showExample();
+    }
     return;
   }
 
-  const { cards, decks, faces, data, firstSideboard } = buildPivot(records, deck);
-
-  if (cards.length === 0 || decks.length === 0) {
-    svgContainer.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">⬡</div>
-        <p>No data found for "${deck}".</p>
-      </div>`;
-    downloadBtn.disabled = true;
-    currentSVG = '';
-    return;
-  }
+  const { cards, faces, data, firstSideboard } = pivot;
 
   currentSVG  = generateCardSVG(deck, cards, faces, data, firstSideboard, namesOutside.checked);
   namesOutside.disabled = faces.length < 2;
@@ -102,3 +122,5 @@ function triggerDownload(blob, filename) {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+refreshDeckList();

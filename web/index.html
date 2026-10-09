@@ -36,11 +36,14 @@
         <h2>How to lay out your sheet</h2>
         <p>Keep the guide in Google Sheets/Excel, select the cells and paste them above.</p>
         <table class="sheet-example">
-          <tr class="sheet-head"><td>md</td><td>sb</td><td>Card</td><td>Delver</td><td>Burn</td><td class="gap"></td><td>Elves</td></tr>
-          <tr><td>4</td><td></td><td>Swords</td><td class="out">-2</td><td></td><td class="gap"></td><td class="out">-4</td></tr>
-          <tr><td>1</td><td>2</td><td>Abeyance</td><td class="in">+2</td><td class="out">-1</td><td class="gap"></td><td></td></tr>
+          <tr class="sheet-head"><td>md</td><td>sb</td><td>Card</td><td>Burn</td><td>Storm</td><td class="gap"></td><td>Elves</td></tr>
+          <tr><td>3</td><td></td><td>Flickerwisp</td><td class="out">-2</td><td></td><td class="gap"></td><td></td></tr>
+          <tr><td>2</td><td></td><td>Mirran Crusader</td><td></td><td class="out">-2</td><td class="gap"></td><td></td></tr>
+          <tr><td>4</td><td></td><td>Thalia</td><td></td><td></td><td class="gap"></td><td class="out">-1</td></tr>
           <tr class="blank"><td colspan="7"></td></tr>
-          <tr><td></td><td>3</td><td>Hydroblast</td><td></td><td class="in">+3</td><td class="gap"></td><td class="in">+1*</td></tr>
+          <tr><td></td><td>2</td><td>Path to Exile</td><td></td><td></td><td class="gap"></td><td class="in">+1*</td></tr>
+          <tr><td></td><td>2</td><td>Kor Firewalker</td><td class="in">+2</td><td></td><td class="gap"></td><td></td></tr>
+          <tr><td></td><td>2</td><td>Canonist</td><td></td><td class="in">+2</td><td class="gap"></td><td></td></tr>
         </table>
         <ul>
           <li><b>md / sb</b>: copies in the main deck and sideboard.</li>
@@ -58,12 +61,25 @@
         <button id="download-btn" class="btn btn-primary" disabled>Download SVG</button>
       </div>
 
-      <div id="svg-container" class="svg-container">
-        <div class="empty-state">
-          <div class="empty-icon">⬡</div>
-          <p>Paste your sideboard guide on the left to see the card.</p>
+      <div id="svg-container" class="svg-container"></div>
+
+      <template id="example-template">
+        <div class="example">
+          <div class="example-intro">
+            <h2>This is what you'll get</h2>
+            <p>An example guide for a made-up Death and Taxes list. Paste your own sheet on the left and it replaces this preview.</p>
+          </div>
+          <div class="example-card"></div>
+          <ul class="example-notes">
+            <li><b>Card size</b>: each half is a 63 × 88 mm Magic card, so it fits in a sleeve or deck box. Print at 100% scale.</li>
+            <li><b>Folding</b>: this guide has an empty column between Storm and Elves, so it prints as two halves. Fold along the dashed line. Guides with more than 10 matchups split on their own. Smaller ones fit on a single card.</li>
+            <li><b>Colours</b>: red numbers are cards to take out, green ones cards to bring in. Faded italics mark optional swaps (a <b>*</b> in your sheet).</li>
+            <li><b>Sideboard</b>: cards below the thick line are your sideboard. Each card shows how many copies you have.</li>
+            <li><b>Total</b>: the bottom row adds up each matchup. It turns red when you bring in more cards than you take out.</li>
+            <li><b>Download SVG</b>: saves the guide so you can print it or edit it in Inkscape or Illustrator.</li>
+          </ul>
         </div>
-      </div>
+      </template>
     </main>
 
   </div>
