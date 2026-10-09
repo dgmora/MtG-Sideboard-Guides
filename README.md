@@ -30,6 +30,12 @@ Run the tests with Node:
 node web/guide.test.js
 ```
 
+Regenerate the example image above after changing how the card looks (needs `rsvg-convert`):
+
+```sh
+node scripts/example-image.js
+```
+
 ## Contributing
 
 Ideas, questions and feedback are best started in [Discussions](https://github.com/dgmora/MtG-Sideboard-Guides/discussions). Issues and pull requests are welcome too.

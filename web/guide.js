@@ -206,6 +206,22 @@ const textWidth = (s, size) => s.length * size * 0.56;
  * in the middle. Both faces share the same rows. With namesOutside, the right
  * face puts card names on its right edge. An empty title leaves no title row.
  */
+const EXAMPLE_SHEET = [
+  ['md', 'sb', 'Card', 'Delver', 'Burn', 'Reanimator', 'Storm', '', 'Elves', 'Lands', 'Show and Tell', 'Eldrazi'],
+  ['4', '', 'Swords to Plowshares', '', '', '', '-2', '', '', '-2', '-2'],
+  ['4', '', 'Thalia, Guardian of Thraben', '', '', '', '', '', '-1', '', '', '-2'],
+  ['3', '', 'Flickerwisp', '-1', '-2', '-1'],
+  ['2', '', 'Mirran Crusader', '', '', '-1', '-2', '', '', '', '-2'],
+  [],
+  ['', '2', 'Path to Exile', '+1', '', '', '', '', '+1*', '', '', '+2'],
+  ['', '2', 'Kor Firewalker', '', '+2'],
+  ['', '2', 'Rest in Peace', '', '', '+2'],
+  ['', '2', 'Ethersworn Canonist', '', '', '', '+2'],
+  ['', '2', 'Surgical Extraction', '', '', '', '+2'],
+  ['', '2', "Council's Judgment", '', '', '', '', '', '', '+2', '+2'],
+  ['', '2', 'Containment Priest', '', '', '', '', '', '', '', '+2'],
+].map(row => row.join('\t')).join('\n');
+
 function generateCardSVG(title, cards, faces, data, firstSideboard, namesOutside = false) {
   const { font, row, col, pad } = FOLD;
   const nameW   = Math.max(...[...cards, 'Total'].map(c => textWidth(c, font))) + 16;
@@ -345,5 +361,5 @@ function decodePaste(text) {
 }
 
 if (typeof module === 'object') {
-  module.exports = { parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs, toMatrixCsv, decodeBase64, decodePaste };
+  module.exports = { EXAMPLE_SHEET, parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs, toMatrixCsv, decodeBase64, decodePaste };
 }
