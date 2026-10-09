@@ -257,7 +257,7 @@ sheetLinks.value = sharedGuide
   : load('links');
 if (pastedGuide !== null) {
   try {
-    textarea.value = decodeBase64(pastedGuide);
+    textarea.value = decodePaste(pastedGuide);
   } catch {
     textarea.placeholder = "Couldn't read the guide in this link. Paste your sheet here";
   }

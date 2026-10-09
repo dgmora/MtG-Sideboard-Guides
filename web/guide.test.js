@@ -1,6 +1,6 @@
 // Run with: node web/guide.test.js
 const assert = require('node:assert');
-const { parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs, toMatrixCsv, encodeBase64Url, decodeBase64 } = require('./guide.js');
+const { parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs, toMatrixCsv, encodeBase64Url, decodeBase64, decodePaste } = require('./guide.js');
 
 const matrix = [
   'md\tsb\tCard\tStasis\tElves\t\tGoblins',
@@ -85,6 +85,9 @@ assert.strictEqual(decodeBase64('Pj4-Pw'), '>>>?');
 assert.throws(() => decodeBase64('not base64!'));
 assert.strictEqual(encodeBase64Url('>>>?'), 'Pj4-Pw');
 assert.strictEqual(decodeBase64(encodeBase64Url(sharedGuide)), sharedGuide);
+assert.strictEqual(decodePaste(encodeBase64Url(sharedGuide)), sharedGuide);
+assert.strictEqual(decodePaste(new URLSearchParams(`paste=${encodeURIComponent(sharedGuide)}`).get('paste')), sharedGuide);
+assert.strictEqual(decodePaste(new URLSearchParams('paste=md,sb,Card,Elves%0A4,,Æther Vial,-1*').get('paste')), sharedGuide);
 
 const withNotes = parseData(`${matrix}\n\t\t\tNotes:\n\t\t\t\tKeep "Jace, the Mind Sculptor" in`);
 const snapshot = toMatrixCsv(withNotes, '');

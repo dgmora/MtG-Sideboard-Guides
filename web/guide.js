@@ -344,6 +344,11 @@ function decodeBase64(text) {
   return new TextDecoder().decode(Uint8Array.from(atob(base64), c => c.charCodeAt(0)));
 }
 
+// Base64 never contains commas, tabs or line breaks, so a guide with any of them came in as plain text
+function decodePaste(text) {
+  return /[,\t\n]/.test(text) ? text : decodeBase64(text);
+}
+
 if (typeof module === 'object') {
-  module.exports = { parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs, toMatrixCsv, encodeBase64Url, decodeBase64 };
+  module.exports = { parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs, toMatrixCsv, encodeBase64Url, decodeBase64, decodePaste };
 }
