@@ -15,43 +15,41 @@
         <p class="subtitle">Magic: The Gathering</p>
       </div>
 
+      <div class="input-section">
+        <label for="data-input">Sideboard guide <span class="label-hint">CSV, or just copy-paste from Google Sheets/Excel</span></label>
+        <textarea id="data-input" spellcheck="false" placeholder="Paste your sheet here"></textarea>
+      </div>
+
       <div class="controls">
-        <div class="control-row">
+        <div class="control-row" hidden>
           <label for="deck-select">Deck</label>
-          <select id="deck-select">
-            <option value="">— paste data to begin —</option>
-          </select>
+          <select id="deck-select"></select>
         </div>
 
         <label>
           <input type="checkbox" id="names-outside">
           Folded card: names on the outer edges
         </label>
-
-        <div class="button-row">
-          <button id="load-btn" class="btn btn-secondary">Load File</button>
-          <input type="file" id="file-input" accept=".csv,.tsv,.txt" style="display:none">
-          <button id="save-btn" class="btn btn-secondary">Save Data</button>
-        </div>
       </div>
 
-      <div class="textarea-wrapper">
-        <label for="data-input">
-          Sideboard Data
-          <span class="label-hint">CSV or TSV</span>
-        </label>
-        <textarea id="data-input" spellcheck="false" placeholder="Paste cells copied from Google Sheets here, or click Load File to open a CSV.
-
-Spreadsheet layout, one row per card:
-md	sb	Deck name	Opponent 1	Opponent 2	…
-
-Or one row per change:
-deck	opponent	card	maindeck	delta
-
-Example:
-Death and Taxes	Delver	Phyrexian Revoker	1	-3
-Death and Taxes	Delver	Path to Exile	0	+1"></textarea>
-      </div>
+      <section class="format-guide">
+        <h2>How to lay out your sheet</h2>
+        <p>Keep the guide in Google Sheets/Excel, select the cells and paste them above.</p>
+        <table class="sheet-example">
+          <tr class="sheet-head"><td>md</td><td>sb</td><td>Card</td><td>Delver</td><td>Burn</td><td class="gap"></td><td>Elves</td></tr>
+          <tr><td>4</td><td></td><td>Swords</td><td class="out">-2</td><td></td><td class="gap"></td><td class="out">-4</td></tr>
+          <tr><td>1</td><td>2</td><td>Abeyance</td><td class="in">+2</td><td class="out">-1</td><td class="gap"></td><td></td></tr>
+          <tr class="blank"><td colspan="7"></td></tr>
+          <tr><td></td><td>3</td><td>Hydroblast</td><td></td><td class="in">+3</td><td class="gap"></td><td class="in">+1*</td></tr>
+        </table>
+        <ul>
+          <li><b>md / sb</b>: copies in the main deck and sideboard.</li>
+          <li><b>One column per matchup</b>: cards in (+) and out (−). Add <b>*</b> for an optional swap.</li>
+          <li><b>Empty row</b>: everything below it is sideboard.</li>
+          <li><b>Empty column</b>: splits the matchups across the two halves of a folded card. Guides with many matchups split on their own.</li>
+        </ul>
+        <p class="caveat">Mostly no validation: the only check is a warning when a matchup brings in more cards than it takes out. Anything that doesn't fit this layout is skipped or shown as-is.</p>
+      </section>
     </aside>
 
     <main class="preview-area">
@@ -63,8 +61,7 @@ Death and Taxes	Delver	Path to Exile	0	+1"></textarea>
       <div id="svg-container" class="svg-container">
         <div class="empty-state">
           <div class="empty-icon">⬡</div>
-          <p>Paste sideboard data on the left to generate a guide.</p>
-          <p class="empty-hint">Supports multiple decks — use the dropdown to switch.</p>
+          <p>Paste your sideboard guide on the left to see the card.</p>
         </div>
       </div>
     </main>

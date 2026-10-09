@@ -15,7 +15,6 @@
   --accent-light:     #e8f0ec;
   --sidebar-bg:       #e8e4dd;
   --btn-sec-bg:       #d6d1c9;
-  --btn-sec-hover:    #c8c2b8;
   --shadow:           0 2px 14px rgba(0, 0, 0, 0.08);
 }
 
@@ -48,7 +47,7 @@ body {
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .sidebar-header {
@@ -79,15 +78,10 @@ body {
   gap: 12px;
 }
 
-.control-row {
+.control-row:not([hidden]) {
   display: flex;
   flex-direction: column;
   gap: 5px;
-}
-
-.button-row {
-  display: flex;
-  gap: 8px;
 }
 
 label {
@@ -160,32 +154,25 @@ select:focus {
   cursor: not-allowed;
 }
 
-.btn-secondary {
-  background: var(--btn-sec-bg);
-  color: var(--text);
-  border-color: var(--border);
-  flex: 1;
-}
+/* ── Input ───────────────────────────────────────────────────────────────── */
 
-.btn-secondary:hover {
-  background: var(--btn-sec-hover);
-}
-
-/* ── Textarea ────────────────────────────────────────────────────────────── */
-
-.textarea-wrapper {
-  flex: 1;
+.input-section {
   display: flex;
   flex-direction: column;
-  padding: 16px 22px 22px;
+  padding: 16px 22px;
   gap: 7px;
-  overflow: hidden;
-  min-height: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.input-section label {
+  flex-direction: column;
+  gap: 2px;
 }
 
 textarea {
-  flex: 1;
-  resize: none;
+  height: 110px;
+  resize: vertical;
+  white-space: pre;
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 10px 12px;
@@ -196,7 +183,6 @@ textarea {
   background: var(--panel);
   outline: none;
   transition: border-color 0.15s;
-  min-height: 0;
 }
 
 textarea:focus {
@@ -206,6 +192,81 @@ textarea:focus {
 textarea::placeholder {
   color: var(--text-muted);
   opacity: 0.65;
+}
+
+/* ── Format guide ────────────────────────────────────────────────────────── */
+
+.format-guide {
+  padding: 16px 22px 22px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.format-guide h2 {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.sheet-example {
+  border-collapse: collapse;
+  background: var(--panel);
+  font-size: 11px;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.sheet-example td {
+  border: 1px solid var(--border);
+  padding: 2px 6px;
+  height: 20px;
+  text-align: center;
+}
+
+.sheet-example td:nth-child(3) {
+  text-align: left;
+}
+
+.sheet-example .sheet-head td {
+  background: var(--btn-sec-bg);
+  font-weight: 600;
+}
+
+.sheet-example .gap {
+  width: 10px;
+  padding: 0;
+  background: var(--bg);
+}
+
+.sheet-example .blank td {
+  height: 10px;
+  background: var(--bg);
+}
+
+.sheet-example .in  { color: #166C00; }
+.sheet-example .out { color: #6C1600; }
+
+.format-guide p {
+  margin-bottom: 8px;
+}
+
+.format-guide .caveat {
+  margin: 10px 0 0;
+  font-style: italic;
+}
+
+.format-guide ul {
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.format-guide b {
+  color: var(--text);
+  font-weight: 600;
 }
 
 /* ── Preview area ────────────────────────────────────────────────────────── */
@@ -222,6 +283,7 @@ textarea::placeholder {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   padding: 16px 24px;
   border-bottom: 1px solid var(--border);
   background: var(--panel);

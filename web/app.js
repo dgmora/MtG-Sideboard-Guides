@@ -5,9 +5,6 @@ const deckSelect  = document.getElementById('deck-select');
 const namesOutside = document.getElementById('names-outside');
 const svgContainer = document.getElementById('svg-container');
 const downloadBtn = document.getElementById('download-btn');
-const loadBtn     = document.getElementById('load-btn');
-const saveBtn     = document.getElementById('save-btn');
-const fileInput   = document.getElementById('file-input');
 const previewLabel = document.getElementById('preview-label');
 
 let records    = [];
@@ -23,7 +20,7 @@ function renderPreview() {
     svgContainer.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">⬡</div>
-        <p>Select a deck to preview.</p>
+        <p>Paste your sideboard guide on the left to see the card.</p>
       </div>`;
     downloadBtn.disabled = true;
     currentSVG = '';
@@ -59,23 +56,19 @@ function refreshDeckList() {
   records     = parseData(text);
   const decks = getDecks(records);
   const prev  = deckSelect.value;
-  deckSelect.parentElement.style.display = decks.length === 1 && !decks[0] ? 'none' : '';
+  deckSelect.parentElement.hidden = decks.length < 2;
 
   deckSelect.innerHTML = '';
 
-  if (decks.length === 0) {
-    deckSelect.innerHTML = '<option value="">— paste data to begin —</option>';
-  } else {
-    for (const d of decks) {
-      const opt = document.createElement('option');
-      opt.value = d;
-      opt.textContent = d;
-      if (d === prev) opt.selected = true;
-      deckSelect.appendChild(opt);
-    }
-    // If previous selection disappeared, fall back to first deck
-    if (!decks.includes(prev)) deckSelect.value = decks[0];
+  for (const d of decks) {
+    const opt = document.createElement('option');
+    opt.value = d;
+    opt.textContent = d;
+    if (d === prev) opt.selected = true;
+    deckSelect.appendChild(opt);
   }
+  // If previous selection disappeared, fall back to first deck
+  if (decks.length && !decks.includes(prev)) deckSelect.value = decks[0];
 
   renderPreview();
 }
@@ -91,28 +84,6 @@ textarea.addEventListener('input', () => {
 
 deckSelect.addEventListener('change', renderPreview);
 namesOutside.addEventListener('change', renderPreview);
-
-// Load from file
-loadBtn.addEventListener('click', () => fileInput.click());
-
-fileInput.addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    textarea.value = ev.target.result;
-    refreshDeckList();
-  };
-  reader.readAsText(file);
-  fileInput.value = ''; // reset so same file can be re-loaded
-});
-
-// Save data to .txt file
-saveBtn.addEventListener('click', () => {
-  const text = textarea.value.trim();
-  if (!text) return;
-  triggerDownload(new Blob([text], { type: 'text/plain' }), 'sideboards.txt');
-});
 
 // Download current SVG
 downloadBtn.addEventListener('click', () => {
@@ -131,19 +102,3 @@ function triggerDownload(blob, filename) {
   a.click();
   URL.revokeObjectURL(url);
 }
-
-// ── Pre-load example data ─────────────────────────────────────────────────────
-// Attempts to fetch ../sideboards.txt (works when served from a local server).
-// Fails silently when opened directly via file://.
-fetch('../sideboards.txt')
-  .then((r) => {
-    if (!r.ok) throw new Error('not found');
-    return r.text();
-  })
-  .then((text) => {
-    textarea.value = text;
-    refreshDeckList();
-  })
-  .catch(() => {
-    // No pre-loaded data — user will paste or load a file
-  });
