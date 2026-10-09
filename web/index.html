@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; connect-src https://docs.google.com https://*.googleusercontent.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src https://docs.google.com https://*.googleusercontent.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'none'">
   <title>MtG Sideboard Guide Generator</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -84,20 +84,31 @@ Write line breaks as %0A, spaces as %20, % as %25, + as %2B, &amp; as %26, # as 
         <span id="preview-label" class="preview-title">Preview</span>
         <div class="preview-actions">
           <button id="share-btn" class="btn btn-secondary" popovertarget="share-menu" disabled>Share guide…</button>
-          <button id="download-btn" class="btn btn-secondary" disabled>Download SVG</button>
-          <button id="download-pdf-btn" class="btn btn-primary" disabled>Download PDF</button>
+          <button id="download-btn" class="btn btn-primary" popovertarget="download-menu" disabled>Download…</button>
         </div>
       </div>
 
-      <div id="share-menu" class="share-menu" popover>
-        <p class="share-title">Share this guide</p>
-        <button id="share-live" class="share-option">
-          <span class="share-option-name">Live link</span>
-          <span class="share-option-text">Opens your spreadsheet, so your later edits show up too. Anyone with the link can open the whole spreadsheet, every tab included.</span>
+      <div id="download-menu" class="menu" popover>
+        <p class="menu-title">Download this guide</p>
+        <button id="download-pdf" class="menu-option">
+          <span class="menu-option-name">PDF for printing</span>
+          <span class="menu-option-text">An A4 page with the guide at its real size, 63 × 88 mm per card. Print it at 100% scale.</span>
         </button>
-        <button id="share-snapshot" class="share-option">
-          <span class="share-option-name">Snapshot</span>
-          <span class="share-option-text">The guide as it is right now, stored in the link itself. Nobody sees your spreadsheet, and later edits don't show up.</span>
+        <button id="download-svg" class="menu-option">
+          <span class="menu-option-name">SVG for editing</span>
+          <span class="menu-option-text">Open it in Inkscape or Illustrator to change how the guide looks.</span>
+        </button>
+      </div>
+
+      <div id="share-menu" class="menu" popover>
+        <p class="menu-title">Share this guide</p>
+        <button id="share-live" class="menu-option">
+          <span class="menu-option-name">Live link</span>
+          <span class="menu-option-text">Opens your spreadsheet, so your later edits show up too. Anyone with the link can open the whole spreadsheet, every tab included.</span>
+        </button>
+        <button id="share-snapshot" class="menu-option">
+          <span class="menu-option-name">Snapshot</span>
+          <span class="menu-option-text">The guide as it is right now, stored in the link itself. Nobody sees your spreadsheet, and later edits don't show up.</span>
         </button>
       </div>
 
@@ -116,7 +127,7 @@ Write line breaks as %0A, spaces as %20, % as %25, + as %2B, &amp; as %26, # as 
             <li><b>Colours</b>: red numbers are cards to take out, green ones cards to bring in. Faded italics mark optional swaps (a <b>*</b> in your sheet).</li>
             <li><b>Sideboard</b>: cards below the thick line are your sideboard. Each card shows how many copies you have.</li>
             <li><b>Total</b>: the bottom row adds up each matchup. It turns red when you bring in more cards than you take out.</li>
-            <li><b>Printing</b>: download the print-ready A4 PDF and print on A4 paper at 100% ("Actual size" if available). Each folded guide is 126 × 88 mm, with cut marks and a dashed fold line. Measure the first copy, as some printers shrink it slightly. Download SVG for editing in Inkscape or Illustrator.</li>
+            <li><b>Printing</b>: download the PDF and print it on A4 paper at 100% scale. Measure the first copy, as some printers shrink it slightly. To edit the guide, download the SVG and open it in Inkscape or Illustrator.</li>
           </ul>
         </div>
       </template>
