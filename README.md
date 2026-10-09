@@ -14,7 +14,7 @@ Each half of the guide is a 63 × 88 mm Magic card. Red numbers are cards to tak
 
 Already have a guide in another format? The page has a prompt you can give an AI assistant like Claude or ChatGPT to convert it, along with your decklist.
 
-Everything runs in your browser. Your spreadsheet is never sent anywhere else, and the page only remembers your links on your device. You can share a guide as a live link to your spreadsheet or as a snapshot stored in the link itself.
+Everything runs in your browser. Your spreadsheet is never sent anywhere else, and the page only remembers your links and the guide you picked last, on your device. You can share a guide as a live link to your spreadsheet or as a snapshot stored in the link itself.
 
 ## Local development
 
