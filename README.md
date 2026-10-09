@@ -1,6 +1,6 @@
 # Sideboard Printer
 
-**Live app: <https://dgmora.github.io/sideboard-printer/web/>**
+**Live app: <https://dgmora.github.io/sideboard-printer/>**
 
 A free sideboard guide template for Magic: The Gathering and other card games. It turns a sideboard guide kept in Google Sheets into a card you can print and keep in your deck box.
 
@@ -18,7 +18,7 @@ Everything runs in your browser. Your spreadsheet is never sent anywhere else, a
 
 ## Local development
 
-The app is plain HTML, CSS and JavaScript in `web/`, with no build step. Serve the repository and open <http://localhost:8000/web/>:
+The app is plain HTML, CSS and JavaScript at the repository root, with no build step. Serve the repository and open <http://localhost:8000/>:
 
 ```sh
 python3 -m http.server
@@ -27,8 +27,8 @@ python3 -m http.server
 Run the tests with Node:
 
 ```sh
-node web/guide.test.js
-node web/pdf.test.js
+node guide.test.js
+node pdf.test.js
 ```
 
 Regenerate the example image above after changing how the card looks (needs `rsvg-convert`):

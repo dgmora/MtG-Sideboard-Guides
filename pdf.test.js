@@ -1,4 +1,4 @@
-// Run with: node web/pdf.test.js
+// Run with: node pdf.test.js
 const assert = require('node:assert/strict');
 const { guideSize, pdfPlacement, buildPDF } = require('./pdf.js');
 const { EXAMPLE_SHEET, parseData, buildPivot, generateCardSVG } = require('./guide.js');

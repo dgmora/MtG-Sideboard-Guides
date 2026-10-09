@@ -1,4 +1,4 @@
-// Run with: node web/guide.test.js
+// Run with: node guide.test.js
 const assert = require('node:assert');
 const { parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs, toMatrixCsv, decodeBase64, decodePaste } = require('./guide.js');
 
