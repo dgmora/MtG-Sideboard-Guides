@@ -11,6 +11,8 @@ const svgContainer = document.getElementById('svg-container');
 const downloadBtn = document.getElementById('download-btn');
 const shareBtn    = document.getElementById('share-btn');
 const previewLabel = document.getElementById('preview-label');
+const convertPrompt = document.getElementById('convert-prompt');
+const copyPromptBtn = document.getElementById('copy-prompt');
 
 let records    = [];
 let guides     = [];
@@ -19,6 +21,7 @@ let currentDeck = '';
 
 const shared = new URLSearchParams(location.search);
 const sharedGuide = shared.has('sheet') && { id: shared.get('sheet'), gid: shared.get('tab') ?? '0' };
+const pastedGuide = shared.get('paste');
 
 const usingSheets = () => document.querySelector('input[name="source"]:checked').value === 'sheets';
 const guideKey = guide => `${guide.id}:${guide.gid}`;
@@ -211,14 +214,21 @@ shareBtn.addEventListener('click', () => {
   if (!ok) return;
   const url = new URL(location.pathname, location.origin);
   url.search = new URLSearchParams({ sheet: guide.id, tab: guide.gid });
-  navigator.clipboard.writeText(url.href).then(
-    () => {
-      shareBtn.textContent = 'Link copied';
-      setTimeout(() => { shareBtn.textContent = 'Share guide'; }, 2000);
-    },
-    () => prompt('Copy this link:', url.href)
-  );
+  copyText(shareBtn, url.href, 'Link copied');
 });
+
+copyPromptBtn.addEventListener('click', () => copyText(copyPromptBtn, convertPrompt.textContent, 'Prompt copied'));
+
+function copyText(button, text, doneLabel) {
+  const label = button.textContent;
+  navigator.clipboard.writeText(text).then(
+    () => {
+      button.textContent = doneLabel;
+      setTimeout(() => { button.textContent = label; }, 2000);
+    },
+    () => prompt('Copy this:', text)
+  );
+}
 
 function triggerDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
@@ -232,6 +242,14 @@ function triggerDownload(blob, filename) {
 sheetLinks.value = sharedGuide
   ? `https://docs.google.com/spreadsheets/d/${sharedGuide.id}/edit#gid=${sharedGuide.gid}`
   : load('links');
-const source = !sharedGuide && load('source') === 'paste' ? 'paste' : 'sheets';
+if (pastedGuide !== null) {
+  try {
+    textarea.value = decodeBase64(pastedGuide);
+  } catch {
+    textarea.placeholder = "Couldn't read the guide in this link. Paste your sheet here";
+  }
+}
+convertPrompt.querySelector('.page-url').textContent = location.origin + location.pathname;
+const source = pastedGuide !== null || (!sharedGuide && load('source') === 'paste') ? 'paste' : 'sheets';
 document.querySelector(`input[name="source"][value="${source}"]`).checked = true;
 applySource();

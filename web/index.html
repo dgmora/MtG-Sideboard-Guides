@@ -72,6 +72,28 @@
           </ul>
           <p class="caveat">Mostly no validation: the only check is a warning when a matchup brings in more cards than it takes out. Anything that doesn't fit this layout is skipped or shown as-is.</p>
         </details>
+
+        <details>
+          <summary>Guide in another format?</summary>
+          <p>An AI assistant like Claude or ChatGPT can convert it. Copy this prompt into a chat, then paste or upload your guide and your decklist with it: text, a PDF or a screenshot all work.</p>
+          <p>It replies with a CSV to import into Google Sheets (File → Import) and a link that opens the guide on this page.</p>
+          <pre id="convert-prompt" class="prompt">Convert the sideboard guide I'm attaching into a CSV for my Magic: The Gathering deck. I'm also attaching my decklist.
+
+Layout:
+- First row: md,sb,Card, then one column per matchup, named after the opposing deck. If the guide differs on the play and on the draw, use two columns, like "Goblins (play)" and "Goblins (draw)".
+- Then one row per card that goes in or out in any matchup: copies in the main deck (md), copies in the sideboard (sb), the card name as written in the decklist, then the change in each matchup.
+- Main deck cards first, then one empty row, then sideboard cards. A card in both the main deck and the sideboard gets a single row in the main deck part, with both counts.
+- Changes are whole numbers: 2 brings in two copies, -1 takes one out. Never write a + sign. Leave the cell empty when nothing changes.
+- Add * after the number when the guide marks a swap as optional, like 1* or -1*.
+- No total row. Put quotes around any value that contains a comma.
+- Each matchup should bring in as many cards as it takes out. If the guide doesn't, keep what it says and tell me.
+
+Reply with:
+1. The CSV in a code block, which I'll save as a .csv file and import into Google Sheets.
+2. This link with the CSV encoded as base64 at the end: <span class="page-url"></span>?paste=
+Encode it with a code tool if you have one: base64 written by hand often comes out wrong.</pre>
+          <button id="copy-prompt" class="btn btn-secondary">Copy prompt</button>
+        </details>
       </section>
     </aside>
 

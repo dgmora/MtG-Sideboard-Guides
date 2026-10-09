@@ -303,6 +303,17 @@ function unescapeJs(str) {
   }
 }
 
+// ─── Shared links ─────────────────────────────────────────────────────────────
+
+/**
+ * UTF-8 text from base64 or base64url. Accepts spaces for '+', which a query
+ * string decodes an unescaped '+' into.
+ */
+function decodeBase64(text) {
+  const base64 = text.replace(/[ -]/g, '+').replace(/_/g, '/');
+  return new TextDecoder().decode(Uint8Array.from(atob(base64), c => c.charCodeAt(0)));
+}
+
 if (typeof module === 'object') {
-  module.exports = { parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs };
+  module.exports = { parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs, decodeBase64 };
 }

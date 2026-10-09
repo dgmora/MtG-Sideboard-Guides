@@ -1,6 +1,6 @@
 // Run with: node web/guide.test.js
 const assert = require('node:assert');
-const { parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs } = require('./guide.js');
+const { parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs, decodeBase64 } = require('./guide.js');
 
 const matrix = [
   'md\tsb\tCard\tStasis\tElves\t\tGoblins',
@@ -76,5 +76,11 @@ assert.deepStrictEqual(parseTabs(htmlview), [
   { name: 'Sneak "n" Show é', gid: '77' },
 ]);
 assert.deepStrictEqual(parseTabs('<html></html>'), []);
+
+const sharedGuide = 'md,sb,Card,Elves\n4,,Æther Vial,-1*';
+assert.strictEqual(decodeBase64(Buffer.from(sharedGuide).toString('base64')), sharedGuide);
+assert.strictEqual(decodeBase64(new URLSearchParams('paste=Pj4+Pw==').get('paste')), '>>>?');
+assert.strictEqual(decodeBase64('Pj4-Pw'), '>>>?');
+assert.throws(() => decodeBase64('not base64!'));
 
 console.log('ok');

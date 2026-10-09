@@ -313,6 +313,19 @@ textarea::placeholder {
   margin-bottom: 8px;
 }
 
+.format-guide .prompt {
+  max-height: 220px;
+  overflow: auto;
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 11px;
+  white-space: pre-wrap;
+}
+
 .format-guide .caveat {
   margin: 10px 0 0;
   font-style: italic;
