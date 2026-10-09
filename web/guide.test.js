@@ -1,6 +1,6 @@
 // Run with: node web/guide.test.js
 const assert = require('node:assert');
-const { parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs, decodeBase64 } = require('./guide.js');
+const { parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs, toMatrixCsv, encodeBase64Url, decodeBase64 } = require('./guide.js');
 
 const matrix = [
   'md\tsb\tCard\tStasis\tElves\t\tGoblins',
@@ -54,7 +54,8 @@ assert.deepStrictEqual(blankRowSplit.cards, ['4 Island', '2 Exalted Angel']);
 assert.strictEqual(blankRowSplit.firstSideboard, 1);
 
 const manyOpponents = Array.from({ length: 12 }, (_, i) => `Opp ${i}`);
-const wide = buildPivot(parseData(`md\tsb\tCard\t${manyOpponents.join('\t')}\n4\t\tIsland\t-1`), '');
+const wideRecords = parseData(`md\tsb\tCard\t${manyOpponents.join('\t')}\n4\t\tIsland\t-1`);
+const wide = buildPivot(wideRecords, '');
 assert.deepStrictEqual(wide.faces, [manyOpponents.slice(0, 6), manyOpponents.slice(6)]);
 
 const single = buildPivot(parseData('md\tsb\tCard\tElves\n4\t\tIsland\t-1'), '');
@@ -82,5 +83,15 @@ assert.strictEqual(decodeBase64(Buffer.from(sharedGuide).toString('base64')), sh
 assert.strictEqual(decodeBase64(new URLSearchParams('paste=Pj4+Pw==').get('paste')), '>>>?');
 assert.strictEqual(decodeBase64('Pj4-Pw'), '>>>?');
 assert.throws(() => decodeBase64('not base64!'));
+assert.strictEqual(encodeBase64Url('>>>?'), 'Pj4-Pw');
+assert.strictEqual(decodeBase64(encodeBase64Url(sharedGuide)), sharedGuide);
+
+const withNotes = parseData(`${matrix}\n\t\t\tNotes:\n\t\t\t\tKeep "Jace, the Mind Sculptor" in`);
+const snapshot = toMatrixCsv(withNotes, '');
+assert.doesNotMatch(snapshot, /Notes|Total/);
+assert.deepStrictEqual(buildPivot(parseData(snapshot), ''), pivot);
+assert.deepStrictEqual(buildPivot(parseData(toMatrixCsv(quoted, '')), ''), buildPivot(quoted, ''));
+assert.deepStrictEqual(buildPivot(parseData(toMatrixCsv(wideRecords, '')), ''), wide);
+assert.deepStrictEqual(buildPivot(parseData(toMatrixCsv(long, 'DnT')), ''), buildPivot(long, 'DnT'));
 
 console.log('ok');

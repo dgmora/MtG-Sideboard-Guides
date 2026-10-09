@@ -101,9 +101,21 @@ Encode it with a code tool if you have one: base64 written by hand often comes o
       <div class="preview-header">
         <span id="preview-label" class="preview-title">Preview</span>
         <div class="preview-actions">
-          <button id="share-btn" class="btn btn-secondary" disabled>Share guide</button>
+          <button id="share-btn" class="btn btn-secondary" popovertarget="share-menu" disabled>Share guide</button>
           <button id="download-btn" class="btn btn-primary" disabled>Download SVG</button>
         </div>
+      </div>
+
+      <div id="share-menu" class="share-menu" popover>
+        <p class="share-title">Share this guide</p>
+        <button id="share-live" class="share-option">
+          <span class="share-option-name">Live link</span>
+          <span class="share-option-text">Opens your spreadsheet, so your later edits show up too. Anyone with the link can open the whole spreadsheet, every tab included.</span>
+        </button>
+        <button id="share-snapshot" class="share-option">
+          <span class="share-option-name">Snapshot</span>
+          <span class="share-option-text">The guide as it is right now, stored in the link itself. Nobody sees your spreadsheet, and later edits don't show up.</span>
+        </button>
       </div>
 
       <div id="svg-container" class="svg-container"></div>

@@ -10,6 +10,9 @@ const namesOutside = document.getElementById('names-outside');
 const svgContainer = document.getElementById('svg-container');
 const downloadBtn = document.getElementById('download-btn');
 const shareBtn    = document.getElementById('share-btn');
+const shareMenu   = document.getElementById('share-menu');
+const shareLive   = document.getElementById('share-live');
+const shareSnapshot = document.getElementById('share-snapshot');
 const previewLabel = document.getElementById('preview-label');
 const convertPrompt = document.getElementById('convert-prompt');
 const copyPromptBtn = document.getElementById('copy-prompt');
@@ -22,6 +25,7 @@ let currentDeck = '';
 const shared = new URLSearchParams(location.search);
 const sharedGuide = shared.has('sheet') && { id: shared.get('sheet'), gid: shared.get('tab') ?? '0' };
 const pastedGuide = shared.get('paste');
+const pastedName  = shared.get('name') ?? '';
 
 const usingSheets = () => document.querySelector('input[name="source"]:checked').value === 'sheets';
 const guideKey = guide => `${guide.id}:${guide.gid}`;
@@ -105,7 +109,7 @@ function fillDeckSelect(options) {
 }
 
 function refreshDeckList() {
-  records = parseData(textarea.value);
+  records = parseData(textarea.value).map(r => ({ ...r, deck: r.deck || pastedName }));
   fillDeckSelect(getDecks(records).map(d => ({ value: d, label: d })));
   renderPreview();
 }
@@ -154,7 +158,7 @@ async function loadGuide() {
 function applySource() {
   const sheets = usingSheets();
   sheetsSection.hidden = !sheets;
-  shareBtn.hidden = !sheets;
+  shareLive.hidden = !sheets;
   pasteSection.hidden = sheets;
   records = [];
   if (sheets) loadGuides();
@@ -204,27 +208,36 @@ downloadBtn.addEventListener('click', () => {
   );
 });
 
-shareBtn.addEventListener('click', () => {
+function pageLink(params) {
+  const url = new URL(location.pathname, location.origin);
+  url.search = new URLSearchParams(params);
+  return url.href;
+}
+
+shareLive.addEventListener('click', () => {
   const guide = selectedGuide();
   if (!guide) return;
-  const ok = confirm(
-    'Anyone with this link can open your whole spreadsheet, including every other tab in it. ' +
-    'Copy the link anyway?'
-  );
-  if (!ok) return;
-  const url = new URL(location.pathname, location.origin);
-  url.search = new URLSearchParams({ sheet: guide.id, tab: guide.gid });
-  copyText(shareBtn, url.href, 'Link copied');
+  shareLink(shareLive, pageLink({ sheet: guide.id, tab: guide.gid }));
 });
+
+shareSnapshot.addEventListener('click', () => {
+  const name = currentDeck ? { name: currentDeck } : {};
+  shareLink(shareSnapshot, pageLink({ paste: encodeBase64Url(toMatrixCsv(records, currentDeck)), ...name }));
+});
+
+function shareLink(option, link) {
+  copyText(option.querySelector('.share-option-name'), link, 'Link copied ✓')
+    .then(() => setTimeout(() => shareMenu.hidePopover(), 900));
+}
 
 copyPromptBtn.addEventListener('click', () => copyText(copyPromptBtn, convertPrompt.textContent, 'Prompt copied'));
 
-function copyText(button, text, doneLabel) {
-  const label = button.textContent;
-  navigator.clipboard.writeText(text).then(
+function copyText(label, text, doneLabel) {
+  label.dataset.label ??= label.textContent;
+  return navigator.clipboard.writeText(text).then(
     () => {
-      button.textContent = doneLabel;
-      setTimeout(() => { button.textContent = label; }, 2000);
+      label.textContent = doneLabel;
+      setTimeout(() => { label.textContent = label.dataset.label; }, 1500);
     },
     () => prompt('Copy this:', text)
   );

@@ -87,11 +87,12 @@ function parseMatrix(rows) {
       const n = parseInt(value.replace(/[^0-9-]/g, ''), 10);
       if (!n) return;
       const fromSideboard = pastBlankRow || (sb > 0 && (n > 0 || md === 0));
+      const count = fromSideboard ? sb || md : md;
       records.push({
         deck:     '',
         opponent: header[i],
         face:     columnFace[i],
-        card:     `${fromSideboard ? sb || md : md} ${name}`,
+        card:     count ? `${count} ${name}` : name,
         name,
         maindeck: fromSideboard ? 0 : 1,
         delta:    (n > 0 ? '+' : '') + n + (/[*?]/.test(value) ? '*' : ''),
@@ -306,6 +307,35 @@ function unescapeJs(str) {
 // ─── Shared links ─────────────────────────────────────────────────────────────
 
 /**
+ * One deck's guide as matrix CSV, leaving out anything else in its sheet.
+ */
+function toMatrixCsv(records, deckName) {
+  const { cards, faces, data, firstSideboard } = buildPivot(records, deckName);
+  const info = Object.fromEntries(records.filter(r => r.deck === deckName && r.card).map(r => [r.card, r]));
+  const opponents = faces.flatMap((face, i) => (i ? ['', ...face] : face));
+  const line = cells => cells.map(csvCell).join(',');
+
+  const lines = [line(['md', 'sb', 'Card', ...opponents])];
+  cards.forEach((card, i) => {
+    if (i === firstSideboard) lines.push('');
+    const { name, maindeck } = info[card];
+    const count = card.slice(0, card.length - name.length).trim();
+    const deltas = opponents.map(opp => (opp && data[opp][card]) || '');
+    lines.push(line([maindeck ? count : '', maindeck ? '' : count, name, ...deltas]));
+  });
+  return lines.join('\n');
+}
+
+function csvCell(value) {
+  return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+}
+
+function encodeBase64Url(text) {
+  const binary = Array.from(new TextEncoder().encode(text), b => String.fromCharCode(b)).join('');
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+/**
  * UTF-8 text from base64 or base64url. Accepts spaces for '+', which a query
  * string decodes an unescaped '+' into.
  */
@@ -315,5 +345,5 @@ function decodeBase64(text) {
 }
 
 if (typeof module === 'object') {
-  module.exports = { parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs, decodeBase64 };
+  module.exports = { parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs, toMatrixCsv, encodeBase64Url, decodeBase64 };
 }
