@@ -271,44 +271,6 @@ textarea::placeholder {
   margin-top: 14px;
 }
 
-.sheet-example {
-  border-collapse: collapse;
-  background: var(--panel);
-  font-size: 11px;
-  color: var(--text);
-  margin-bottom: 10px;
-}
-
-.sheet-example td {
-  border: 1px solid var(--border);
-  padding: 2px 6px;
-  height: 20px;
-  text-align: center;
-}
-
-.sheet-example td:nth-child(3) {
-  text-align: left;
-}
-
-.sheet-example .sheet-head td {
-  background: var(--btn-sec-bg);
-  font-weight: 600;
-}
-
-.sheet-example .gap {
-  width: 10px;
-  padding: 0;
-  background: var(--bg);
-}
-
-.sheet-example .blank td {
-  height: 10px;
-  background: var(--bg);
-}
-
-.sheet-example .in  { color: #166C00; }
-.sheet-example .out { color: #6C1600; }
-
 .format-guide p {
   margin-bottom: 8px;
 }
@@ -326,25 +288,8 @@ textarea::placeholder {
   white-space: pre-wrap;
 }
 
-.format-guide .caveat {
-  margin: 10px 0 0;
-  font-style: italic;
-}
-
-.format-guide ul {
-  padding-left: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
 .format-guide a {
   color: var(--accent);
-}
-
-.format-guide b {
-  color: var(--text);
-  font-weight: 600;
 }
 
 /* ── Preview area ────────────────────────────────────────────────────────── */
