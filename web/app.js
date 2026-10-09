@@ -63,8 +63,8 @@ function renderPreview() {
     currentSVG = '';
     currentDeck = '';
     downloadBtn.disabled = true;
-    downloadMenu.hidePopover();
-    shareMenu.hidePopover();
+    downloadMenu.hidePopover?.();
+    shareMenu.hidePopover?.();
     shareBtn.disabled = true;
     namesOutside.disabled = false;
     if ((usingSheets() ? sheetLinks : textarea).value.trim()) {
@@ -230,7 +230,7 @@ namesOutside.addEventListener('change', renderPreview);
 downloadSvg.addEventListener('click', () => {
   if (!currentSVG) return;
   triggerDownload(new Blob([currentSVG], { type: 'image/svg+xml' }), `${currentDeck || 'sideboard'}_guide.svg`);
-  downloadMenu.hidePopover();
+  downloadMenu.hidePopover?.();
 });
 
 downloadPdf.addEventListener('click', async () => {
@@ -239,7 +239,7 @@ downloadPdf.addEventListener('click', async () => {
   downloadPdf.disabled = true;
   try {
     triggerDownload(await createGuidePDF(currentSVG), filename);
-    downloadMenu.hidePopover();
+    downloadMenu.hidePopover?.();
   } catch (error) {
     alert(`Could not create the PDF: ${error.message}`);
   } finally {
@@ -266,7 +266,7 @@ shareSnapshot.addEventListener('click', () => {
 
 function shareLink(option, link) {
   copyText(option.querySelector('.menu-option-name'), link, 'Link copied ✓')
-    .then(() => setTimeout(() => shareMenu.hidePopover(), 900));
+    .then(() => setTimeout(() => shareMenu.hidePopover?.(), 900));
 }
 
 copyPromptBtn.addEventListener('click', () => copyText(copyPromptBtn, convertPrompt.textContent, 'Prompt copied'));
