@@ -330,11 +330,6 @@ function csvCell(value) {
   return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
 }
 
-function encodeBase64Url(text) {
-  const binary = Array.from(new TextEncoder().encode(text), b => String.fromCharCode(b)).join('');
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
 /**
  * UTF-8 text from base64 or base64url. Accepts spaces for '+', which a query
  * string decodes an unescaped '+' into.
@@ -350,5 +345,5 @@ function decodePaste(text) {
 }
 
 if (typeof module === 'object') {
-  module.exports = { parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs, toMatrixCsv, encodeBase64Url, decodeBase64, decodePaste };
+  module.exports = { parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs, toMatrixCsv, decodeBase64, decodePaste };
 }

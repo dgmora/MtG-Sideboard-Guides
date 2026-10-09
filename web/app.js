@@ -210,7 +210,7 @@ downloadBtn.addEventListener('click', () => {
 
 function pageLink(params) {
   const url = new URL(location.pathname, location.origin);
-  url.search = new URLSearchParams(params);
+  url.search = new URLSearchParams(params).toString().replaceAll('%2C', ',');
   return url.href;
 }
 
@@ -222,7 +222,7 @@ shareLive.addEventListener('click', () => {
 
 shareSnapshot.addEventListener('click', () => {
   const name = currentDeck ? { name: currentDeck } : {};
-  shareLink(shareSnapshot, pageLink({ paste: encodeBase64Url(toMatrixCsv(records, currentDeck)), ...name }));
+  shareLink(shareSnapshot, pageLink({ paste: toMatrixCsv(records, currentDeck), ...name }));
 });
 
 function shareLink(option, link) {
