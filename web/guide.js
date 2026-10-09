@@ -17,11 +17,12 @@ function parseData(text) {
 
 /**
  * Split text into trimmed cells: tab-separated if the first non-blank line has
- * a tab, comma-separated otherwise. Quoted cells may hold delimiters, newlines and "".
+ * a tab outside quotes, comma-separated otherwise. Quoted cells may hold
+ * delimiters, newlines and "".
  */
 function toRows(text) {
   const firstLine = text.split('\n').find(line => line.trim()) ?? '';
-  const delimiter = firstLine.includes('\t') ? '\t' : ',';
+  const delimiter = firstLine.replace(/"[^"]*"/g, '').includes('\t') ? '\t' : ',';
   const rows = [];
   let row = [], cell = '', quoted = false;
   for (let i = 0; i < text.length; i++) {
@@ -344,7 +345,7 @@ function toMatrixCsv(records, deckName) {
 }
 
 function csvCell(value) {
-  return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+  return /[",\t\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
 }
 
 /**

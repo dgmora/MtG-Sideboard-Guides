@@ -129,5 +129,6 @@ assert.deepStrictEqual(labels(roundTrip(quoted)), labels(buildPivot(quoted, ''))
 assert.deepStrictEqual(faceNames(roundTrip(wideRecords)), faceNames(wide));
 assert.deepStrictEqual(matchup(roundTrip(long, 'DnT'), 0), { Path: '+1' });
 assert.deepStrictEqual(roundTrip(parseData('md,sb,Card,Elves,Goblins\n2,2,Path to Exile,-2,2')).cards, sameCounts.cards);
+assert.deepStrictEqual(faceNames(roundTrip(parseData('md,sb,Card,"Bant\tSpirits"\n4,,Island,-1'))), [['Bant\tSpirits']]);
 
 console.log('ok');
