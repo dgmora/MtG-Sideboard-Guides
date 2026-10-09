@@ -1,5 +1,7 @@
 # MtG Sideboard Guide generator
 
+**Live app: <https://dgmora.github.io/MtG-Sideboard-Guides/>**
+
 Inspired by and originally based on [sepro/MtG-Sideboard-Guides](https://github.com/sepro/MtG-Sideboard-Guides)
 by Sebastian Proost, which this project started as a fork of.
 
