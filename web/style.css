@@ -474,11 +474,6 @@ textarea::placeholder {
   font-size: 14px;
 }
 
-.empty-hint {
-  font-size: 12px !important;
-  opacity: 0.7;
-}
-
 /* ── Narrow screens ──────────────────────────────────────────────────────── */
 
 @media (max-width: 800px) {
