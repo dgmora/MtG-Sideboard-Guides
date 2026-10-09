@@ -1,5 +1,8 @@
 // ─── UI ───────────────────────────────────────────────────────────────────────
 
+// GitHub Pages can't send a frame-ancestors header, so the page hides itself inside other sites' frames
+if (window.top !== window.self) document.body.hidden = true;
+
 const textarea    = document.getElementById('data-input');
 const sheetLinks  = document.getElementById('sheet-links');
 const sheetStatus = document.getElementById('sheet-status');
