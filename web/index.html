@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src https://docs.google.com https://*.googleusercontent.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; connect-src https://docs.google.com https://*.googleusercontent.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'none'">
   <title>MtG Sideboard Guide Generator</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -84,7 +84,8 @@ Write line breaks as %0A, spaces as %20, % as %25, + as %2B, &amp; as %26, # as 
         <span id="preview-label" class="preview-title">Preview</span>
         <div class="preview-actions">
           <button id="share-btn" class="btn btn-secondary" popovertarget="share-menu" disabled>Share guide…</button>
-          <button id="download-btn" class="btn btn-primary" disabled>Download SVG</button>
+          <button id="download-btn" class="btn btn-secondary" disabled>Download SVG</button>
+          <button id="download-pdf-btn" class="btn btn-primary" disabled>Download PDF</button>
         </div>
       </div>
 
@@ -115,7 +116,7 @@ Write line breaks as %0A, spaces as %20, % as %25, + as %2B, &amp; as %26, # as 
             <li><b>Colours</b>: red numbers are cards to take out, green ones cards to bring in. Faded italics mark optional swaps (a <b>*</b> in your sheet).</li>
             <li><b>Sideboard</b>: cards below the thick line are your sideboard. Each card shows how many copies you have.</li>
             <li><b>Total</b>: the bottom row adds up each matchup. It turns red when you bring in more cards than you take out.</li>
-            <li><b>Printing</b>: download the SVG, open it in your browser and print at 100% scale ("Actual size", not "Fit to page"). Measure the first copy, as some printers shrink it slightly. Google Docs can't keep the size. To edit the guide, open the SVG in Inkscape or Illustrator.</li>
+            <li><b>Printing</b>: download the print-ready A4 PDF and print on A4 paper at 100% ("Actual size" if available). Each folded guide is 126 × 88 mm, with cut marks and a dashed fold line. Measure the first copy, as some printers shrink it slightly. Download SVG for editing in Inkscape or Illustrator.</li>
           </ul>
         </div>
       </template>
@@ -123,6 +124,7 @@ Write line breaks as %0A, spaces as %20, % as %25, + as %2B, &amp; as %26, # as 
 
   </div>
   <script src="guide.js"></script>
+  <script src="pdf.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
