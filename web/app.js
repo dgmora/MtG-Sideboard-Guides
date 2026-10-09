@@ -19,7 +19,7 @@ let currentDeck = '';
 function renderPreview() {
   const deck = deckSelect.value;
 
-  if (!deck) {
+  if (!getDecks(records).includes(deck)) {
     svgContainer.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">⬡</div>
@@ -44,14 +44,14 @@ function renderPreview() {
     return;
   }
 
-  currentSVG  = faces.length > 1
-    ? generateFoldSVG(deck, cards, faces, data, firstSideboard, namesOutside.checked)
-    : generateSVG(deck, cards, decks, data, firstSideboard);
+  currentSVG  = generateCardSVG(deck, cards, faces, data, firstSideboard, namesOutside.checked);
+  namesOutside.disabled = faces.length < 2;
   currentDeck = deck;
   svgContainer.innerHTML = currentSVG;
   downloadBtn.disabled = false;
   const offBalance = unbalanced(records, deck);
-  previewLabel.textContent = offBalance.length ? `${deck} — too many cards in: ${offBalance.join(', ')}` : deck;
+  const warning = offBalance.length ? `Too many cards in: ${offBalance.join(', ')}` : '';
+  previewLabel.textContent = [deck, warning].filter(Boolean).join(' — ') || 'Preview';
 }
 
 function refreshDeckList() {
@@ -59,6 +59,7 @@ function refreshDeckList() {
   records     = parseData(text);
   const decks = getDecks(records);
   const prev  = deckSelect.value;
+  deckSelect.parentElement.style.display = decks.length === 1 && !decks[0] ? 'none' : '';
 
   deckSelect.innerHTML = '';
 
@@ -118,7 +119,7 @@ downloadBtn.addEventListener('click', () => {
   if (!currentSVG) return;
   triggerDownload(
     new Blob([currentSVG], { type: 'image/svg+xml' }),
-    `${currentDeck}_guide.svg`
+    `${currentDeck || 'sideboard'}_guide.svg`
   );
 });
 

@@ -246,10 +246,9 @@ textarea::placeholder {
 }
 
 .svg-container svg {
-  max-width: 100%;
-  border-radius: 8px;
-  box-shadow: var(--shadow);
-  background: #fff;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.12));
   display: block;
 }
 
