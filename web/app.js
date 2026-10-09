@@ -55,6 +55,7 @@ function renderPreview() {
 
   if (!pivot || pivot.cards.length === 0) {
     currentSVG = '';
+    currentDeck = '';
     downloadBtn.disabled = true;
     shareBtn.disabled = true;
     namesOutside.disabled = false;
@@ -63,7 +64,7 @@ function renderPreview() {
       svgContainer.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">⬡</div>
-          <p>No cards found. Check the layout guide on the left.</p>
+          <p>No cards found. The first row of a guide starts with md, sb, Card.</p>
         </div>`;
     } else {
       previewLabel.textContent = 'Example';
