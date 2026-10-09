@@ -10,7 +10,7 @@ A free sideboard guide template for Magic: The Gathering and other card games. I
 
 Keep one spreadsheet with a tab per deck, named after the deck. Start from the template linked on the page, share the spreadsheet as "Anyone with the link can view" and add its link: every tab becomes a guide. Edit the sheet and the card catches up within a minute. You can also paste a sheet or CSV directly.
 
-Each half of the guide is a standard 63 × 88 mm card. Red numbers are cards to take out, green ones cards to bring in, and a `*` marks optional swaps. Guides with many matchups fold into two halves. Download the SVG and print it at 100% scale.
+Each half of the guide is a standard 63 × 88 mm card. Red numbers are cards to take out, green ones cards to bring in, and a `*` marks optional swaps. Guides with many matchups fold into two halves. Download the PDF and print it on A4 or Letter paper at 100% scale, or the SVG to print from your browser or edit the guide.
 
 Already have a guide in another format? The page has a prompt you can give an AI assistant like Claude or ChatGPT to convert it, along with your decklist.
 
@@ -28,6 +28,7 @@ Run the tests with Node:
 
 ```sh
 node guide.test.js
+node pdf.test.js
 ```
 
 Regenerate the example image above after changing how the card looks (needs `rsvg-convert`):

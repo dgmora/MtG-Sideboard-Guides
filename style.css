@@ -345,9 +345,9 @@ textarea::placeholder {
   gap: 8px;
 }
 
-/* ── Share menu ──────────────────────────────────────────────────────────── */
+/* ── Menus ───────────────────────────────────────────────────────────────── */
 
-.share-menu {
+.menu {
   inset: auto;
   top: 72px;
   right: 24px;
@@ -361,13 +361,13 @@ textarea::placeholder {
   box-shadow: var(--shadow);
 }
 
-.share-menu:popover-open {
+.menu:popover-open {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.share-title {
+.menu-title {
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -375,7 +375,7 @@ textarea::placeholder {
   color: var(--text-muted);
 }
 
-.share-option {
+.menu-option {
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -390,22 +390,22 @@ textarea::placeholder {
   transition: background 0.15s, border-color 0.15s;
 }
 
-.share-option[hidden] {
+.menu-option[hidden] {
   display: none;
 }
 
-.share-option:hover,
-.share-option:focus-visible {
+.menu-option:hover,
+.menu-option:focus-visible {
   border-color: var(--accent);
   background: var(--accent-light);
 }
 
-.share-option-name {
+.menu-option-name {
   font-size: 13px;
   font-weight: 600;
 }
 
-.share-option-text {
+.menu-option-text {
   font-size: 12px;
   line-height: 1.4;
   color: var(--text-muted);

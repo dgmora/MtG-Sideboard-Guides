@@ -1,5 +1,8 @@
 // ─── UI ───────────────────────────────────────────────────────────────────────
 
+// GitHub Pages can't send a frame-ancestors header, so the page hides itself inside other sites' frames
+if (window.top !== window.self) document.body.hidden = true;
+
 const textarea    = document.getElementById('data-input');
 const sheetLinks  = document.getElementById('sheet-links');
 const sheetStatus = document.getElementById('sheet-status');
@@ -12,6 +15,9 @@ const deckSelect  = document.getElementById('deck-select');
 const namesOutside = document.getElementById('names-outside');
 const svgContainer = document.getElementById('svg-container');
 const downloadBtn = document.getElementById('download-btn');
+const downloadMenu = document.getElementById('download-menu');
+const downloadPdf = document.getElementById('download-pdf');
+const downloadSvg = document.getElementById('download-svg');
 const shareBtn    = document.getElementById('share-btn');
 const shareMenu   = document.getElementById('share-menu');
 const shareLive   = document.getElementById('share-live');
@@ -60,6 +66,8 @@ function renderPreview() {
     currentSVG = '';
     currentDeck = '';
     downloadBtn.disabled = true;
+    downloadMenu.hidePopover?.();
+    shareMenu.hidePopover?.();
     shareBtn.disabled = true;
     namesOutside.disabled = false;
     if ((usingSheets() ? sheetLinks : textarea).value.trim()) {
@@ -222,12 +230,24 @@ deckSelect.addEventListener('change', () => {
 });
 namesOutside.addEventListener('change', renderPreview);
 
-downloadBtn.addEventListener('click', () => {
+downloadSvg.addEventListener('click', () => {
   if (!currentSVG) return;
-  triggerDownload(
-    new Blob([currentSVG], { type: 'image/svg+xml' }),
-    `${currentDeck || 'sideboard'}_guide.svg`
-  );
+  triggerDownload(new Blob([currentSVG], { type: 'image/svg+xml' }), `${currentDeck || 'sideboard'}_guide.svg`);
+  downloadMenu.hidePopover?.();
+});
+
+downloadPdf.addEventListener('click', async () => {
+  if (!currentSVG) return;
+  const filename = `${currentDeck || 'sideboard'}_guide.pdf`;
+  downloadPdf.disabled = true;
+  try {
+    triggerDownload(await createGuidePDF(currentSVG), filename);
+    downloadMenu.hidePopover?.();
+  } catch (error) {
+    alert(`Could not create the PDF: ${error.message}`);
+  } finally {
+    downloadPdf.disabled = false;
+  }
 });
 
 function pageLink(params) {
@@ -248,8 +268,8 @@ shareSnapshot.addEventListener('click', () => {
 });
 
 function shareLink(option, link) {
-  copyText(option.querySelector('.share-option-name'), link, 'Link copied ✓')
-    .then(() => setTimeout(() => shareMenu.hidePopover(), 900));
+  copyText(option.querySelector('.menu-option-name'), link, 'Link copied ✓')
+    .then(() => setTimeout(() => shareMenu.hidePopover?.(), 900));
 }
 
 copyPromptBtn.addEventListener('click', () => copyText(copyPromptBtn, convertPrompt.textContent, 'Prompt copied'));
