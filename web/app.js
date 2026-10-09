@@ -63,6 +63,8 @@ function renderPreview() {
     currentSVG = '';
     currentDeck = '';
     downloadBtn.disabled = true;
+    downloadMenu.hidePopover();
+    shareMenu.hidePopover();
     shareBtn.disabled = true;
     namesOutside.disabled = false;
     if ((usingSheets() ? sheetLinks : textarea).value.trim()) {

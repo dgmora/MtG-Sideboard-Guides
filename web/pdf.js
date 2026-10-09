@@ -2,7 +2,6 @@
 // The PDF is written by hand so the page loads no library. The guide goes in as
 // a 600 dpi image because the fonts every PDF viewer has can't show non-Latin names.
 const A4_MM = { width: 210, height: 297 };
-const TOP_MM = 12;
 const DPI = 600;
 const MM_TO_PT = 72 / 25.4;
 
@@ -14,7 +13,8 @@ function guideSize(svg) {
 }
 
 function pdfPlacement({ width, height }) {
-  return { x: (A4_MM.width - width) / 2, y: TOP_MM, width, height };
+  // Centred so the guide also prints whole on Letter paper, whichever edge the printer lines the page up with
+  return { x: (A4_MM.width - width) / 2, y: (A4_MM.height - height) / 2, width, height };
 }
 
 async function renderJPEG(svg, { width, height }) {
@@ -53,7 +53,7 @@ function buildPDF(jpeg, pixels, { x, y, width, height }) {
     size += bytes.length;
   };
 
-  write('%PDF-1.4\n');
+  write('%PDF-1.6\n');
   const offsets = objects.map((body, i) => {
     const offset = size;
     write(`${i + 1} 0 obj\n`);
