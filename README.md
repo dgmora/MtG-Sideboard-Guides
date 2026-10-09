@@ -1,5 +1,8 @@
 # MtG Sideboard Guide generator
 
+Inspired by and originally based on [sepro/MtG-Sideboard-Guides](https://github.com/sepro/MtG-Sideboard-Guides)
+by Sebastian Proost, which this project started as a fork of.
+
 This notebook will guide you how to create concise sideboard guides, printable on a 63 x 88 mm 
 standard card. It will load the data from a tab delimited text file, use **pandas** to transform 
 the data to a matrix. Next, using a **jinja2** template, these data are turned into an **SVG** image.
