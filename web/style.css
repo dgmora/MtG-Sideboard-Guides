@@ -478,3 +478,27 @@ textarea::placeholder {
   font-size: 12px !important;
   opacity: 0.7;
 }
+
+/* ── Narrow screens ──────────────────────────────────────────────────────── */
+
+@media (max-width: 800px) {
+  .app {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
+
+  .sidebar {
+    width: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .preview-header {
+    flex-wrap: wrap;
+  }
+
+  .svg-container {
+    padding: 16px;
+  }
+}
