@@ -149,7 +149,17 @@ select:focus {
   border-color: var(--accent-hover);
 }
 
-.btn-primary:disabled {
+.btn-secondary {
+  background: var(--btn-sec-bg);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.btn:disabled {
   opacity: 0.38;
   cursor: not-allowed;
 }
@@ -342,6 +352,11 @@ textarea::placeholder {
   border-bottom: 1px solid var(--border);
   background: var(--panel);
   flex-shrink: 0;
+}
+
+.preview-actions {
+  display: flex;
+  gap: 8px;
 }
 
 .preview-title {

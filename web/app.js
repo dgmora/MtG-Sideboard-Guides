@@ -9,12 +9,16 @@ const deckSelect  = document.getElementById('deck-select');
 const namesOutside = document.getElementById('names-outside');
 const svgContainer = document.getElementById('svg-container');
 const downloadBtn = document.getElementById('download-btn');
+const shareBtn    = document.getElementById('share-btn');
 const previewLabel = document.getElementById('preview-label');
 
 let records    = [];
 let guides     = [];
 let currentSVG = '';
 let currentDeck = '';
+
+const shared = new URLSearchParams(location.search);
+const sharedGuide = shared.has('sheet') && { id: shared.get('sheet'), gid: shared.get('tab') ?? '0' };
 
 const usingSheets = () => document.querySelector('input[name="source"]:checked').value === 'sheets';
 const guideKey = guide => `${guide.id}:${guide.gid}`;
@@ -61,6 +65,7 @@ function renderPreview() {
   if (!pivot || pivot.cards.length === 0) {
     currentSVG = '';
     downloadBtn.disabled = true;
+    shareBtn.disabled = true;
     namesOutside.disabled = false;
     if ((usingSheets() ? sheetLinks : textarea).value.trim()) {
       previewLabel.textContent = 'Preview';
@@ -83,13 +88,14 @@ function renderPreview() {
   currentDeck = deck;
   svgContainer.innerHTML = currentSVG;
   downloadBtn.disabled = false;
+  shareBtn.disabled = false;
   const offBalance = unbalanced(records, deck);
   const warning = offBalance.length ? `Too many cards in: ${offBalance.join(', ')}` : '';
   previewLabel.textContent = [deck, warning].filter(Boolean).join(' — ') || 'Preview';
 }
 
 function fillDeckSelect(options) {
-  const prev = deckSelect.value || load('deck');
+  const prev = deckSelect.value || (sharedGuide && guideKey(sharedGuide)) || load('deck');
   deckSelect.parentElement.hidden = options.length < 2;
   deckSelect.replaceChildren(...options.map(({ value, label }) => new Option(label, value)));
   if (options.some(o => o.value === prev)) deckSelect.value = prev;
@@ -145,6 +151,7 @@ async function loadGuide() {
 function applySource() {
   const sheets = usingSheets();
   sheetsSection.hidden = !sheets;
+  shareBtn.hidden = !sheets;
   pasteSection.hidden = sheets;
   records = [];
   if (sheets) loadGuides();
@@ -194,6 +201,25 @@ downloadBtn.addEventListener('click', () => {
   );
 });
 
+shareBtn.addEventListener('click', () => {
+  const guide = selectedGuide();
+  if (!guide) return;
+  const ok = confirm(
+    'Anyone with this link can open your whole spreadsheet, including every other tab in it. ' +
+    'Copy the link anyway?'
+  );
+  if (!ok) return;
+  const url = new URL(location.pathname, location.origin);
+  url.search = new URLSearchParams({ sheet: guide.id, tab: guide.gid });
+  navigator.clipboard.writeText(url.href).then(
+    () => {
+      shareBtn.textContent = 'Link copied';
+      setTimeout(() => { shareBtn.textContent = 'Share guide'; }, 2000);
+    },
+    () => prompt('Copy this link:', url.href)
+  );
+});
+
 function triggerDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a   = document.createElement('a');
@@ -203,6 +229,9 @@ function triggerDownload(blob, filename) {
   URL.revokeObjectURL(url);
 }
 
-sheetLinks.value = load('links');
-document.querySelector(`input[name="source"][value="${load('source') === 'paste' ? 'paste' : 'sheets'}"]`).checked = true;
+sheetLinks.value = sharedGuide
+  ? `https://docs.google.com/spreadsheets/d/${sharedGuide.id}/edit#gid=${sharedGuide.gid}`
+  : load('links');
+const source = !sharedGuide && load('source') === 'paste' ? 'paste' : 'sheets';
+document.querySelector(`input[name="source"][value="${source}"]`).checked = true;
 applySource();
