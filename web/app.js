@@ -122,9 +122,12 @@ async function loadGuides() {
   const lists = await Promise.all(links.map(link => fetchTabs(link).catch(() => { failed.push(link); return []; })));
   if (run !== latestLoad) return;
   guides = lists.flat();
-  linksStatus = failed.length
-    ? `Can't read ${failed.join(', ')}. Share it as "Anyone with the link can view".`
-    : '';
+  const notLinks = failed.filter(link => !sheetId(link));
+  const unreadable = failed.filter(sheetId);
+  linksStatus = [
+    notLinks.length && `${notLinks.join(', ')} isn't a spreadsheet link. Copy the link from the Share button in Google Sheets.`,
+    unreadable.length && `Can't read ${unreadable.join(', ')}. Share it as "Anyone with the link can view".`,
+  ].filter(Boolean).join(' ');
   sheetStatus.textContent = linksStatus;
   fillDeckSelect(guides.map(g => ({ value: guideKey(g), label: g.name })));
   await loadGuide();

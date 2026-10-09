@@ -301,8 +301,12 @@ function generateCardSVG(title, { cards, faces, firstSideboard }, namesOutside =
 
 // ─── Google Sheets ────────────────────────────────────────────────────────────
 
+/**
+ * The id in a spreadsheet's edit or share link. "Publish to web" links (/d/e/…)
+ * carry a different id that can't be read as CSV, so they give null.
+ */
 function sheetId(link) {
-  return link.match(/\/spreadsheets\/d\/([\w-]+)/)?.[1] ?? null;
+  return link.match(/\/spreadsheets\/d\/(?!e\/)([\w-]+)/)?.[1] ?? null;
 }
 
 /**

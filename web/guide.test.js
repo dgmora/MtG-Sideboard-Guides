@@ -98,6 +98,7 @@ assert.match(generateCardSVG('DnT', single), />DnT</);
 
 assert.strictEqual(sheetId('https://docs.google.com/spreadsheets/d/1Bx-i_9/edit#gid=12'), '1Bx-i_9');
 assert.strictEqual(sheetId('https://example.com/d/1Bx'), null);
+assert.strictEqual(sheetId('https://docs.google.com/spreadsheets/d/e/2PACX-1vQ/pubhtml'), null);
 
 const htmlview = [
   'var items = [];',
