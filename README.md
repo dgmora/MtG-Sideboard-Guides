@@ -1,8 +1,8 @@
-# MtG Sideboard Guide generator
+# MTG Sideboard Guide Template and Printable Card Generator
 
-**Live app: <https://dgmora.github.io/MtG-Sideboard-Guides/>**
+**Live app: <https://dgmora.github.io/MtG-Sideboard-Guides/web/>**
 
-Turns a sideboard guide kept in Google Sheets into a card you can print and keep in your deck box.
+A free sideboard guide template for Magic: The Gathering. It turns a sideboard guide kept in Google Sheets into a card you can print and keep in your deck box.
 
 ![example guide](./img/example_guide.png "Example Guide")
 
