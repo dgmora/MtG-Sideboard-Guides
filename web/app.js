@@ -12,6 +12,7 @@ const deckSelect  = document.getElementById('deck-select');
 const namesOutside = document.getElementById('names-outside');
 const svgContainer = document.getElementById('svg-container');
 const downloadBtn = document.getElementById('download-btn');
+const pdfDownloadBtn = document.getElementById('download-pdf-btn');
 const shareBtn    = document.getElementById('share-btn');
 const shareMenu   = document.getElementById('share-menu');
 const shareLive   = document.getElementById('share-live');
@@ -60,6 +61,7 @@ function renderPreview() {
     currentSVG = '';
     currentDeck = '';
     downloadBtn.disabled = true;
+    pdfDownloadBtn.disabled = true;
     shareBtn.disabled = true;
     namesOutside.disabled = false;
     if ((usingSheets() ? sheetLinks : textarea).value.trim()) {
@@ -81,6 +83,7 @@ function renderPreview() {
   currentDeck = deck;
   svgContainer.innerHTML = currentSVG;
   downloadBtn.disabled = false;
+  pdfDownloadBtn.disabled = false;
   shareBtn.disabled = false;
   const offBalance = unbalanced(pivot);
   const warning = offBalance.length ? `Too many cards in: ${offBalance.join(', ')}` : '';
@@ -228,6 +231,50 @@ downloadBtn.addEventListener('click', () => {
     new Blob([currentSVG], { type: 'image/svg+xml' }),
     `${currentDeck || 'sideboard'}_guide.svg`
   );
+});
+
+// Load the vector PDF libraries only when needed, keeping the main page lightweight.
+let pdfLibrariesPromise;
+function loadPdfScript(src) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error('Could not load PDF library'));
+    document.head.appendChild(script);
+  });
+}
+
+function loadPDFConstructor() {
+  return pdfLibrariesPromise ||= (async () => {
+    await loadPdfScript('https://cdn.jsdelivr.net/npm/jspdf@3.0.3/dist/jspdf.umd.min.js');
+    await loadPdfScript('https://cdn.jsdelivr.net/npm/svg2pdf.js@2.7.0/dist/svg2pdf.umd.min.js');
+    const PDFConstructor = window.jspdf?.jsPDF;
+    if (typeof PDFConstructor?.API?.svg !== 'function') throw new Error('SVG-to-PDF converter unavailable');
+    return PDFConstructor;
+  })().catch(error => {
+    pdfLibrariesPromise = null; // allow retry after a temporary network failure
+    throw error;
+  });
+}
+
+pdfDownloadBtn.addEventListener('click', async () => {
+  const svg = currentSVG && svgContainer.querySelector('svg');
+  if (!svg) return;
+  const filename = `${currentDeck || 'sideboard'}_guide.pdf`;
+  pdfDownloadBtn.disabled = true;
+  pdfDownloadBtn.textContent = 'Preparing PDF…';
+  try {
+    const PDFConstructor = await loadPDFConstructor();
+    const pdf = await createGuidePDF(svg, PDFConstructor);
+    pdf.save(filename);
+  } catch (error) {
+    console.error('PDF export failed:', error);
+    alert('Could not generate the PDF. Check your connection and try again.');
+  } finally {
+    pdfDownloadBtn.textContent = 'Download PDF';
+    pdfDownloadBtn.disabled = !currentSVG;
+  }
 });
 
 function pageLink(params) {
