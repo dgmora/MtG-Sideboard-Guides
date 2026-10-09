@@ -152,11 +152,21 @@ async function loadGuide() {
   if (run !== latestLoad) return;
   records = csv === null ? [] : parseData(csv).map(r => ({ ...r, deck: guide.name }));
   sheetStatus.textContent = [linksStatus, csv === null && `Can't read the "${guide.name}" tab.`].filter(Boolean).join(' ');
-  updatedAt.textContent = csv === null ? '' : `Updated ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ·`;
+  loadedAt = csv === null ? null : Date.now();
+  showLoadedAt();
   sheetUpdated.hidden = false;
   reloadBtn.disabled = false;
   reloadBtn.textContent = 'Reload';
   renderPreview();
+}
+
+let loadedAt = null;
+const timeAgo = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+
+function showLoadedAt() {
+  const seconds = Math.floor((Date.now() - loadedAt) / 1000);
+  const ago = seconds < 60 ? timeAgo.format(-seconds, 'second') : timeAgo.format(-Math.floor(seconds / 60), 'minute');
+  updatedAt.textContent = loadedAt === null ? '' : `Updated ${ago} ·`;
 }
 
 function applySource() {
@@ -195,6 +205,8 @@ for (const radio of document.querySelectorAll('input[name="source"]')) {
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && usingSheets()) loadGuides();
 });
+
+setInterval(showLoadedAt, 1000);
 
 reloadBtn.addEventListener('click', () => {
   reloadBtn.disabled = true;
