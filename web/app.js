@@ -153,7 +153,9 @@ async function loadGuide() {
   records = csv === null ? [] : parseData(csv).map(r => ({ ...r, deck: guide.name }));
   sheetStatus.textContent = [linksStatus, csv === null && `Can't read the "${guide.name}" tab.`].filter(Boolean).join(' ');
   loadedAt = csv === null ? null : Date.now();
+  clearInterval(loadedAtTimer);
   showLoadedAt();
+  loadedAtTimer = setInterval(showLoadedAt, 10000);
   sheetUpdated.hidden = false;
   reloadBtn.disabled = false;
   reloadBtn.textContent = 'Reload';
@@ -161,6 +163,7 @@ async function loadGuide() {
 }
 
 let loadedAt = null;
+let loadedAtTimer;
 const timeAgo = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
 
 function showLoadedAt() {
@@ -205,8 +208,6 @@ for (const radio of document.querySelectorAll('input[name="source"]')) {
 const refetchIfShown = () => { if (document.visibilityState === 'visible' && usingSheets()) loadGuides(); };
 document.addEventListener('visibilitychange', refetchIfShown);
 setInterval(refetchIfShown, 60000);
-
-setInterval(showLoadedAt, 10000);
 
 reloadBtn.addEventListener('click', () => {
   reloadBtn.disabled = true;
