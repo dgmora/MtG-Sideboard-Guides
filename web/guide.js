@@ -7,6 +7,7 @@
  */
 function parseData(text) {
   const rows = toRows(text);
+  while (rows.length && !rows[0].some(c => c)) rows.shift();
   if (rows.length && rows[0][0].toLowerCase() === 'md') {
     return parseMatrix(rows);
   }
@@ -35,13 +36,13 @@ function toRows(text) {
   }
   row.push(cell);
   rows.push(row);
-  return rows.map(r => r.map(c => c.trim())).filter(r => r.some(c => c));
+  return rows.map(r => r.map(c => c.trim()));
 }
 
 function parseLong(rows) {
   const records = [];
   for (const cells of rows) {
-    if (cells.length < 5 || cells[0].toLowerCase() === 'deck') continue;
+    if (cells.length < 5 || !cells[0] || cells[0].toLowerCase() === 'deck') continue;
     records.push({
       deck:     cells[0],
       opponent: cells[1],
@@ -56,8 +57,9 @@ function parseLong(rows) {
 
 /**
  * A blank header column splits the matchups onto the two faces of a folded card.
- * A card in both main and sideboard gets a row in each section: cuts come from
- * the main copies, additions from the sideboard.
+ * Cards below the first blank row are sideboard cards, counted from md or sb.
+ * Above it, a card in both main and sideboard gets a row in each section: cuts
+ * come from the main copies, additions from the sideboard.
  * A '*' or '?' on a value marks an optional change.
  */
 function parseMatrix(rows) {
@@ -72,7 +74,9 @@ function parseMatrix(rows) {
 
   // Card-less records keep every opponent column, in header order, even without changes
   const records = Object.keys(columnFace).map(i => ({ deck: '', opponent: header[i], face: columnFace[i], card: null }));
+  let pastBlankRow = false;
   for (const cells of rows.slice(1)) {
+    if (!cells.some(c => c)) { pastBlankRow = true; continue; }
     const md   = parseInt(cells[0], 10) || 0;
     const sb   = parseInt(cells[1], 10) || 0;
     const name = cells[2];
@@ -82,12 +86,12 @@ function parseMatrix(rows) {
       if (!(i in columnFace)) return;
       const n = parseInt(value.replace(/[^0-9-]/g, ''), 10);
       if (!n) return;
-      const fromSideboard = sb > 0 && (n > 0 || md === 0);
+      const fromSideboard = pastBlankRow || (sb > 0 && (n > 0 || md === 0));
       records.push({
         deck:     '',
         opponent: header[i],
         face:     columnFace[i],
-        card:     `${fromSideboard ? sb : md} ${name}`,
+        card:     `${fromSideboard ? sb || md : md} ${name}`,
         name,
         maindeck: fromSideboard ? 0 : 1,
         delta:    (n > 0 ? '+' : '') + n + (/[*?]/.test(value) ? '*' : ''),

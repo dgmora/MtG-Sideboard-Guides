@@ -44,6 +44,15 @@ assert.deepStrictEqual(buildPivot(quoted, '').cards, ['1 Jace, the Mind Sculptor
 const pastedWithQuotes = parseData('md\tsb\tX\tElves\n1\t\t"Say ""Hi""\nTwice"\t-1');
 assert.deepStrictEqual(buildPivot(pastedWithQuotes, '').cards, ['1 Say "Hi"\nTwice']);
 
+const blankRowSplit = buildPivot(parseData([
+  'md\tsb\tCard\tElves',
+  '4\t\tIsland\t-2',
+  '\t\t\t',
+  '2\t\tExalted Angel\t2',
+].join('\n')), '');
+assert.deepStrictEqual(blankRowSplit.cards, ['4 Island', '2 Exalted Angel']);
+assert.strictEqual(blankRowSplit.firstSideboard, 1);
+
 const manyOpponents = Array.from({ length: 12 }, (_, i) => `Opp ${i}`);
 const wide = buildPivot(parseData(`md\tsb\tCard\t${manyOpponents.join('\t')}\n4\t\tIsland\t-1`), '');
 assert.deepStrictEqual(wide.faces, [manyOpponents.slice(0, 6), manyOpponents.slice(6)]);
