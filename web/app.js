@@ -165,7 +165,7 @@ const timeAgo = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
 
 function showLoadedAt() {
   const seconds = Math.floor((Date.now() - loadedAt) / 1000);
-  const ago = seconds < 60 ? timeAgo.format(-seconds, 'second') : timeAgo.format(-Math.floor(seconds / 60), 'minute');
+  const ago = seconds < 60 ? timeAgo.format(-(seconds - seconds % 10), 'second') : timeAgo.format(-Math.floor(seconds / 60), 'minute');
   updatedAt.textContent = loadedAt === null ? '' : `Updated ${ago} ·`;
 }
 
@@ -206,7 +206,7 @@ const refetchIfShown = () => { if (document.visibilityState === 'visible' && usi
 document.addEventListener('visibilitychange', refetchIfShown);
 setInterval(refetchIfShown, 60000);
 
-setInterval(showLoadedAt, 1000);
+setInterval(showLoadedAt, 10000);
 
 reloadBtn.addEventListener('click', () => {
   reloadBtn.disabled = true;
