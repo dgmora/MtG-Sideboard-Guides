@@ -314,6 +314,10 @@ textarea::placeholder {
   gap: 4px;
 }
 
+.format-guide a {
+  color: var(--accent);
+}
+
 .format-guide b {
   color: var(--text);
   font-weight: 600;
