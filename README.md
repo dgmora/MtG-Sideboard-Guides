@@ -1,8 +1,8 @@
-# MTG Sideboard Guide Template and Printable Card Generator
+# Sideboard Printer
 
-**Live app: <https://dgmora.github.io/MtG-Sideboard-Guides/web/>**
+**Live app: <https://dgmora.github.io/sideboard-printer/web/>**
 
-A free sideboard guide template for Magic: The Gathering. It turns a sideboard guide kept in Google Sheets into a card you can print and keep in your deck box.
+A free sideboard guide template for Magic: The Gathering and other card games. It turns a sideboard guide kept in Google Sheets into a card you can print and keep in your deck box.
 
 ![example guide](./img/example_guide.png "Example Guide")
 
@@ -10,7 +10,7 @@ A free sideboard guide template for Magic: The Gathering. It turns a sideboard g
 
 Keep one spreadsheet with a tab per deck, named after the deck. Start from the template linked on the page, share the spreadsheet as "Anyone with the link can view" and add its link: every tab becomes a guide. Edit the sheet and the card catches up within a minute. You can also paste a sheet or CSV directly.
 
-Each half of the guide is a 63 × 88 mm Magic card. Red numbers are cards to take out, green ones cards to bring in, and a `*` marks optional swaps. Guides with many matchups fold into two halves. Download the SVG and print it at 100% scale.
+Each half of the guide is a standard 63 × 88 mm card. Red numbers are cards to take out, green ones cards to bring in, and a `*` marks optional swaps. Guides with many matchups fold into two halves. Download the SVG and print it at 100% scale.
 
 Already have a guide in another format? The page has a prompt you can give an AI assistant like Claude or ChatGPT to convert it, along with your decklist.
 
@@ -38,7 +38,7 @@ node scripts/example-image.js
 
 ## Contributing
 
-Ideas, questions and feedback are best started in [Discussions](https://github.com/dgmora/MtG-Sideboard-Guides/discussions). Issues and pull requests are welcome too.
+Ideas, questions and feedback are best started in [Discussions](https://github.com/dgmora/sideboard-printer/discussions). Issues and pull requests are welcome too.
 
 ## Attribution
 
