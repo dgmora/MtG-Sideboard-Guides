@@ -92,7 +92,7 @@ function parseMatrix(rows) {
     const md   = parseInt(cells[0], 10) || 0;
     const sb   = parseInt(cells[1], 10) || 0;
     const name = cells[2];
-    if (!name || name.toLowerCase() === 'total') return;
+    if (!name || /^totals?:?$/i.test(name)) return;
 
     cells.forEach((value, i) => {
       const column = columnAt.get(i);

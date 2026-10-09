@@ -43,6 +43,9 @@ assert.deepStrictEqual(unbalanced(playDraw), ['Elves +2']);
 const typographic = buildPivot(parseData('md,sb,Card,Elves,Burn\n4,,Island,−1,–2'), '');
 assert.deepStrictEqual(typographic.cards[0].values, new Map([[3, '-1'], [4, '-2']]));
 
+const totals = buildPivot(parseData('md,sb,Card,Elves\n4,,Island,-1\n,,Totals,-1\n,,TOTAL:,-1'), '');
+assert.deepStrictEqual(labels(totals), ['4 Island']);
+
 const builtInNames = buildPivot(parseData('md,sb,Card,constructor\n1,,__proto__,-1\n1,,toString,-1'), '');
 assert.deepStrictEqual(labels(builtInNames), ['1 __proto__', '1 toString']);
 assert.deepStrictEqual(unbalanced(builtInNames), []);
