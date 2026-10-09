@@ -111,28 +111,36 @@ async function fetchTabs(link) {
   return (tabs.length ? tabs : [linkedTab]).map(tab => ({ id, ...tab }));
 }
 
+// Fetches finish in any order, so each load bumps this and drops its result once a newer one started
+let latestLoad = 0;
+let linksStatus = '';
+
 async function loadGuides() {
+  const run = ++latestLoad;
   const links = sheetLinks.value.split('\n').map(l => l.trim()).filter(Boolean);
   const failed = [];
   const lists = await Promise.all(links.map(link => fetchTabs(link).catch(() => { failed.push(link); return []; })));
+  if (run !== latestLoad) return;
   guides = lists.flat();
-  sheetStatus.textContent = failed.length
+  linksStatus = failed.length
     ? `Can't read ${failed.join(', ')}. Share it as "Anyone with the link can view".`
     : '';
+  sheetStatus.textContent = linksStatus;
   fillDeckSelect(guides.map(g => ({ value: guideKey(g), label: g.name })));
   await loadGuide();
 }
 
 async function loadGuide() {
+  const run = ++latestLoad;
   const guide = selectedGuide();
   if (!guide) return renderPreview();
+  let csv = null;
   try {
-    const csv = await fetchText(`https://docs.google.com/spreadsheets/d/${guide.id}/export?format=csv&gid=${guide.gid}`);
-    if (guide !== selectedGuide()) return;
-    records = parseData(csv).map(r => ({ ...r, deck: guide.name }));
-  } catch {
-    sheetStatus.textContent = `Can't read the "${guide.name}" tab.`;
-  }
+    csv = await fetchText(`https://docs.google.com/spreadsheets/d/${guide.id}/export?format=csv&gid=${guide.gid}`);
+  } catch {}
+  if (run !== latestLoad) return;
+  records = csv === null ? [] : parseData(csv).map(r => ({ ...r, deck: guide.name }));
+  sheetStatus.textContent = [linksStatus, csv === null && `Can't read the "${guide.name}" tab.`].filter(Boolean).join(' ');
   renderPreview();
 }
 
@@ -142,6 +150,7 @@ function applySource() {
   shareLive.hidden = !sheets;
   pasteSection.hidden = sheets;
   records = [];
+  latestLoad++;
   if (sheets) loadGuides();
   else refreshDeckList();
 }
