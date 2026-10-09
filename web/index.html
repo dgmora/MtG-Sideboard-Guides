@@ -27,6 +27,7 @@
         <label for="sheet-links">Spreadsheet links <span class="label-hint">One per line, shared as "Anyone with the link can view"</span></label>
         <textarea id="sheet-links" class="links" spellcheck="false" placeholder="https://docs.google.com/spreadsheets/d/…"></textarea>
         <p id="sheet-status" class="sheet-status" role="status"></p>
+        <p id="sheet-updated" class="sheet-updated" hidden><span id="updated-at"></span> <button id="reload-btn" class="link-button" type="button">Reload</button></p>
       </div>
 
       <div id="paste-section" class="input-section" hidden>
@@ -50,7 +51,7 @@
         <details open>
           <summary>How this works</summary>
           <p>This page turns a sideboard guide kept in Google Sheets into a card you can print and keep in your deck box.</p>
-          <p>Keep one spreadsheet with a tab per deck, named after the deck. Start from <a href="https://docs.google.com/spreadsheets/d/1WIR-tiN7BKEBCsWVLKuTYCNr0JvIB0LWAHgC8mqeYLI/copy" target="_blank" rel="noopener">a copy of the template</a>, or convert the guide you already have with the prompt below. Share the spreadsheet as "Anyone with the link can view" and add its link above: every tab becomes a guide. Edit the sheet, come back to this page and the card updates.</p>
+          <p>Keep one spreadsheet with a tab per deck, named after the deck. Start from <a href="https://docs.google.com/spreadsheets/d/1WIR-tiN7BKEBCsWVLKuTYCNr0JvIB0LWAHgC8mqeYLI/copy" target="_blank" rel="noopener">a copy of the template</a>, or convert the guide you already have with the prompt below. Share the spreadsheet as "Anyone with the link can view" and add its link above: every tab becomes a guide. Edit the sheet, come back to this page and the card updates, or press Reload.</p>
           <p>Everything happens in your browser: we never see or store your spreadsheet. This page only remembers your links and the guide you picked last, on this device.</p>
         </details>
 

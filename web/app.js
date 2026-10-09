@@ -3,6 +3,9 @@
 const textarea    = document.getElementById('data-input');
 const sheetLinks  = document.getElementById('sheet-links');
 const sheetStatus = document.getElementById('sheet-status');
+const sheetUpdated = document.getElementById('sheet-updated');
+const updatedAt  = document.getElementById('updated-at');
+const reloadBtn  = document.getElementById('reload-btn');
 const sheetsSection = document.getElementById('sheets-section');
 const pasteSection  = document.getElementById('paste-section');
 const deckSelect  = document.getElementById('deck-select');
@@ -138,7 +141,10 @@ async function loadGuides() {
 async function loadGuide() {
   const run = ++latestLoad;
   const guide = selectedGuide();
-  if (!guide) return renderPreview();
+  if (!guide) {
+    sheetUpdated.hidden = true;
+    return renderPreview();
+  }
   let csv = null;
   try {
     csv = await fetchText(`https://docs.google.com/spreadsheets/d/${guide.id}/export?format=csv&gid=${guide.gid}`);
@@ -146,6 +152,10 @@ async function loadGuide() {
   if (run !== latestLoad) return;
   records = csv === null ? [] : parseData(csv).map(r => ({ ...r, deck: guide.name }));
   sheetStatus.textContent = [linksStatus, csv === null && `Can't read the "${guide.name}" tab.`].filter(Boolean).join(' ');
+  updatedAt.textContent = csv === null ? '' : `Updated ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ·`;
+  sheetUpdated.hidden = false;
+  reloadBtn.disabled = false;
+  reloadBtn.textContent = 'Reload';
   renderPreview();
 }
 
@@ -184,6 +194,12 @@ for (const radio of document.querySelectorAll('input[name="source"]')) {
 // Google can't push sheet edits to this page, so refetch when the user comes back to it
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && usingSheets()) loadGuides();
+});
+
+reloadBtn.addEventListener('click', () => {
+  reloadBtn.disabled = true;
+  reloadBtn.textContent = 'Reloading…';
+  loadGuides();
 });
 
 deckSelect.addEventListener('change', () => {
