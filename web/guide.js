@@ -200,7 +200,7 @@ function valueStyle(value) {
 
 // ─── Card Sheet ───────────────────────────────────────────────────────────────
 
-const FOLD = { font: 34, valueFont: 30, row: 46, col: 50, pad: 24, title: 64 };
+const FOLD = { font: 34, valueFont: 30, titleFont: 52, row: 46, col: 50, pad: 24, title: 64 };
 
 // ponytail: estimated sans-serif width, measure with getBBox if labels get clipped
 const textWidth = (s, size) => s.length * size * 0.56;
@@ -231,7 +231,8 @@ function generateCardSVG(title, { cards, faces, firstSideboard }, namesOutside =
   const rowLabels = [...cards.map(c => c.label), 'Total'];
   const nameW   = Math.max(...rowLabels.map(l => textWidth(l, font))) + 16;
   const headerH = Math.max(...faces.flat().map(o => textWidth(o.name, font))) + 16;
-  const faceW   = pad * 2 + nameW + Math.max(...faces.map(f => f.length)) * col;
+  const titleW  = title ? textWidth(title, FOLD.titleFont) : 0;
+  const faceW   = pad * 2 + Math.max(titleW, nameW + Math.max(...faces.map(f => f.length)) * col);
   const tableY  = pad + (title ? FOLD.title : 0) + headerH;
   const faceH   = tableY + (cards.length + 1) * row + pad;
 
@@ -260,7 +261,7 @@ function generateCardSVG(title, { cards, faces, firstSideboard }, namesOutside =
     const bottom = tableY + (cards.length + 1) * row;
 
     lines.push(`  <g transform="translate(${x0.toFixed(1)},${y0.toFixed(1)}) scale(${scale.toFixed(4)})" font-family="sans-serif">`);
-    if (title) lines.push(`    <text x="${faceW / 2}" y="${pad + FOLD.title * 0.8}" font-size="52" text-anchor="middle">${escapeXml(title)}</text>`);
+    if (title) lines.push(`    <text x="${faceW / 2}" y="${pad + FOLD.title * 0.8}" font-size="${FOLD.titleFont}" text-anchor="middle">${escapeXml(title)}</text>`);
 
     opponents.forEach((opp, i) => {
       const x = colsX + i * col;
