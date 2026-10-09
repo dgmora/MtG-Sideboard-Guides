@@ -40,6 +40,9 @@ const playDraw = buildPivot(parseData('md,sb,Card,Elves,,Elves\n4,,Island,-1,,\n
 assert.deepStrictEqual(faceNames(playDraw), [['Elves'], ['Elves']]);
 assert.deepStrictEqual(unbalanced(playDraw), ['Elves +2']);
 
+const typographic = buildPivot(parseData('md,sb,Card,Elves,Burn\n4,,Island,−1,–2'), '');
+assert.deepStrictEqual(typographic.cards[0].values, new Map([[3, '-1'], [4, '-2']]));
+
 const builtInNames = buildPivot(parseData('md,sb,Card,constructor\n1,,__proto__,-1\n1,,toString,-1'), '');
 assert.deepStrictEqual(labels(builtInNames), ['1 __proto__', '1 toString']);
 assert.deepStrictEqual(unbalanced(builtInNames), []);
@@ -47,7 +50,7 @@ assert.deepStrictEqual(unbalanced(builtInNames), []);
 assert.deepStrictEqual(parseData('Date,Event,Opponent,Result,Notes\n2024-01-01,FNM,Elves,2-1,good'), []);
 assert.deepStrictEqual(parseData('<script>var a=[1,2,3,4,5]</script>'), []);
 
-const long = parseData('deck\topponent\tcard\tmaindeck\tdelta\nDnT\tDelver\tPath\t0\t+1');
+const long = parseData('deck\topponent\tcard\tmaindeck\tdelta\nDnT\tDelver\tPath\t0\t1');
 assert.deepStrictEqual(labels(buildPivot(long, 'DnT')), ['Path']);
 assert.deepStrictEqual(matchup(buildPivot(long, 'DnT'), 0), { Path: '+1' });
 

@@ -40,6 +40,16 @@ function toRows(text) {
   return rows.map(r => r.map(c => c.trim()));
 }
 
+/**
+ * A change as '+2', '-1' or '+1*' (optional), or '' when the value isn't one.
+ * Typographic minus signs count as cuts.
+ */
+function parseDelta(value) {
+  const n = parseInt(value.replace(/[−–—]/g, '-').replace(/[^0-9-]/g, ''), 10);
+  if (!n) return '';
+  return (n > 0 ? '+' : '') + n + (/[*?]/.test(value) ? '*' : '');
+}
+
 function parseLong(rows) {
   const records = [];
   for (const cells of rows) {
@@ -50,7 +60,7 @@ function parseLong(rows) {
       card:     cells[2],
       name:     cells[2],
       maindeck: parseInt(cells[3], 10) || 0,
-      delta:    cells[4],
+      delta:    parseDelta(cells[4]),
     });
   }
   return records;
@@ -86,10 +96,9 @@ function parseMatrix(rows) {
 
     cells.forEach((value, i) => {
       const column = columnAt.get(i);
-      if (!column) return;
-      const n = parseInt(value.replace(/[^0-9-]/g, ''), 10);
-      if (!n) return;
-      const fromSideboard = pastBlankRow || (sb > 0 && (n > 0 || md === 0));
+      const delta = column && parseDelta(value);
+      if (!delta) return;
+      const fromSideboard = pastBlankRow || (sb > 0 && (delta[0] === '+' || md === 0));
       const count = fromSideboard ? sb || md : md;
       records.push({
         deck:     '',
@@ -98,7 +107,7 @@ function parseMatrix(rows) {
         card:     count ? `${count} ${name}` : name,
         name,
         maindeck: fromSideboard ? 0 : 1,
-        delta:    (n > 0 ? '+' : '') + n + (/[*?]/.test(value) ? '*' : ''),
+        delta,
       });
     });
   });
