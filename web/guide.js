@@ -277,6 +277,32 @@ function generateCardSVG(title, cards, faces, data, firstSideboard, namesOutside
   return lines.join('\n');
 }
 
+// ─── Google Sheets ────────────────────────────────────────────────────────────
+
+function sheetId(link) {
+  return link.match(/\/spreadsheets\/d\/([\w-]+)/)?.[1] ?? null;
+}
+
+/**
+ * Tabs listed in a spreadsheet's htmlview page, as [{ name, gid }].
+ * ponytail: scrapes Google's undocumented htmlview page; switch to the Sheets API (needs a key) if it breaks.
+ */
+function parseTabs(html) {
+  const tabs = [];
+  for (const [, name, gid] of html.matchAll(/items\.push\(\{name: "((?:[^"\\]|\\.)*)",.*?gid: "(\d+)"/g)) {
+    tabs.push({ name: unescapeJs(name), gid });
+  }
+  return tabs;
+}
+
+function unescapeJs(str) {
+  try {
+    return JSON.parse(`"${str.replace(/\\x([0-9a-f]{2})/gi, '\\u00$1')}"`);
+  } catch {
+    return str;
+  }
+}
+
 if (typeof module === 'object') {
-  module.exports = { parseData, getDecks, buildPivot, unbalanced, generateCardSVG };
+  module.exports = { parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs };
 }

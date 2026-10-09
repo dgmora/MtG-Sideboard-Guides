@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src https://docs.google.com https://*.googleusercontent.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'none'">
   <title>MtG Sideboard Guide Generator</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -15,7 +16,18 @@
         <p class="subtitle">Magic: The Gathering</p>
       </div>
 
-      <div class="input-section">
+      <div class="source-toggle" role="radiogroup" aria-label="Source">
+        <label><input type="radio" name="source" value="sheets" checked> Google Sheets</label>
+        <label><input type="radio" name="source" value="paste"> Paste</label>
+      </div>
+
+      <div id="sheets-section" class="input-section">
+        <label for="sheet-links">Spreadsheet links <span class="label-hint">One per line, shared as "Anyone with the link can view"</span></label>
+        <textarea id="sheet-links" class="links" spellcheck="false" placeholder="https://docs.google.com/spreadsheets/d/…"></textarea>
+        <p id="sheet-status" class="sheet-status" role="status"></p>
+      </div>
+
+      <div id="paste-section" class="input-section" hidden>
         <label for="data-input">Sideboard guide <span class="label-hint">CSV, or just copy-paste from Google Sheets/Excel</span></label>
         <textarea id="data-input" spellcheck="false" placeholder="Paste your sheet here"></textarea>
       </div>
@@ -33,8 +45,11 @@
       </div>
 
       <section class="format-guide">
-        <h2>How to lay out your sheet</h2>
-        <p>Keep the guide in Google Sheets/Excel, select the cells and paste them above.</p>
+        <h2>Where to keep your guides</h2>
+        <p><b>Best:</b> one Google spreadsheet with a tab per deck. The tab name is the deck name. Share it as "Anyone with the link can view" and add its link above: every tab becomes a guide. Edit the sheet, come back to this page and the card updates.</p>
+        <p>Guides in several spreadsheets? Add one link per line. Or select the cells in Google Sheets/Excel and paste them under <b>Paste</b>.</p>
+
+        <h2>How to lay out each tab</h2>
         <table class="sheet-example">
           <tr class="sheet-head"><td>md</td><td>sb</td><td>Card</td><td>Burn</td><td>Storm</td><td class="gap"></td><td>Elves</td></tr>
           <tr><td>3</td><td></td><td>Flickerwisp</td><td class="out">-2</td><td></td><td class="gap"></td><td></td></tr>
@@ -67,7 +82,7 @@
         <div class="example">
           <div class="example-intro">
             <h2>This is what you'll get</h2>
-            <p>An example guide for a made-up Death and Taxes list. Paste your own sheet on the left and it replaces this preview.</p>
+            <p>An example guide for a made-up Death and Taxes list. Link or paste your own sheet on the left and it replaces this preview.</p>
           </div>
           <div class="example-card"></div>
           <ul class="example-notes">

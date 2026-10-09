@@ -1,6 +1,6 @@
 // Run with: node web/guide.test.js
 const assert = require('node:assert');
-const { parseData, getDecks, buildPivot, unbalanced, generateCardSVG } = require('./guide.js');
+const { parseData, getDecks, buildPivot, unbalanced, generateCardSVG, sheetId, parseTabs } = require('./guide.js');
 
 const matrix = [
   'md\tsb\tCard\tStasis\tElves\t\tGoblins',
@@ -62,5 +62,19 @@ const singleSVG = generateCardSVG('', single.cards, single.faces, single.data, s
 assert.match(singleSVG, /width="63mm"/);
 assert.match(singleSVG, />Total</);
 assert.match(generateCardSVG('DnT', single.cards, single.faces, single.data, -1), />DnT</);
+
+assert.strictEqual(sheetId('https://docs.google.com/spreadsheets/d/1Bx-i_9/edit#gid=12'), '1Bx-i_9');
+assert.strictEqual(sheetId('https://example.com/d/1Bx'), null);
+
+const htmlview = [
+  'var items = [];',
+  'items.push({name: "Death \\x26 Taxes", pageUrl: "https:\\/\\/docs.google.com\\/x?headers\\x3dtrue&gid=0", gid: "0",initialSheet: ("0" == gid)});',
+  'items.push({name: "Sneak \\"n\\" Show \\u00e9", pageUrl: "https:\\/\\/docs.google.com\\/x?gid=77", gid: "77",initialSheet: ("77" == gid)});',
+].join('');
+assert.deepStrictEqual(parseTabs(htmlview), [
+  { name: 'Death & Taxes', gid: '0' },
+  { name: 'Sneak "n" Show é', gid: '77' },
+]);
+assert.deepStrictEqual(parseTabs('<html></html>'), []);
 
 console.log('ok');

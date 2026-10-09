@@ -156,7 +156,39 @@ select:focus {
 
 /* ── Input ───────────────────────────────────────────────────────────────── */
 
-.input-section {
+.source-toggle {
+  display: flex;
+  flex-shrink: 0;
+  margin: 16px 22px 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.source-toggle label {
+  flex: 1;
+  justify-content: center;
+  padding: 7px;
+  background: var(--panel);
+  cursor: pointer;
+}
+
+.source-toggle label:has(:checked) {
+  background: var(--accent);
+  color: #fff;
+}
+
+.source-toggle label:has(:focus-visible) {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: -2px;
+}
+
+.source-toggle input {
+  position: absolute;
+  opacity: 0;
+}
+
+.input-section:not([hidden]) {
   display: flex;
   flex-direction: column;
   padding: 16px 22px;
@@ -183,6 +215,20 @@ textarea {
   background: var(--panel);
   outline: none;
   transition: border-color 0.15s;
+}
+
+textarea.links {
+  height: 70px;
+}
+
+.sheet-status:empty {
+  display: none;
+}
+
+.sheet-status {
+  font-size: 12px;
+  color: #6C1600;
+  overflow-wrap: anywhere;
 }
 
 textarea:focus {
@@ -250,6 +296,10 @@ textarea::placeholder {
 
 .format-guide p {
   margin-bottom: 8px;
+}
+
+.format-guide p + h2 {
+  margin-top: 14px;
 }
 
 .format-guide .caveat {

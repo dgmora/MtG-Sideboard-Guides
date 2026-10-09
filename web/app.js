@@ -1,6 +1,10 @@
 // ─── UI ───────────────────────────────────────────────────────────────────────
 
 const textarea    = document.getElementById('data-input');
+const sheetLinks  = document.getElementById('sheet-links');
+const sheetStatus = document.getElementById('sheet-status');
+const sheetsSection = document.getElementById('sheets-section');
+const pasteSection  = document.getElementById('paste-section');
 const deckSelect  = document.getElementById('deck-select');
 const namesOutside = document.getElementById('names-outside');
 const svgContainer = document.getElementById('svg-container');
@@ -8,8 +12,21 @@ const downloadBtn = document.getElementById('download-btn');
 const previewLabel = document.getElementById('preview-label');
 
 let records    = [];
+let guides     = [];
 let currentSVG = '';
 let currentDeck = '';
+
+const usingSheets = () => document.querySelector('input[name="source"]:checked').value === 'sheets';
+const guideKey = guide => `${guide.id}:${guide.gid}`;
+const selectedGuide = () => guides.find(g => guideKey(g) === deckSelect.value);
+
+function load(key) {
+  try { return localStorage.getItem(key) ?? ''; } catch { return ''; }
+}
+
+function save(key, value) {
+  try { localStorage.setItem(key, value); } catch {}
+}
 
 const EXAMPLE_SHEET = [
   ['md', 'sb', 'Card', 'Delver', 'Burn', 'Reanimator', 'Storm', '', 'Elves', 'Lands', 'Show and Tell', 'Eldrazi'],
@@ -38,14 +55,14 @@ function showExample() {
 // ── Render ────────────────────────────────────────────────────────────────────
 
 function renderPreview() {
-  const deck  = deckSelect.value;
+  const deck  = usingSheets() ? selectedGuide()?.name : deckSelect.value;
   const pivot = getDecks(records).includes(deck) && buildPivot(records, deck);
 
   if (!pivot || pivot.cards.length === 0) {
     currentSVG = '';
     downloadBtn.disabled = true;
     namesOutside.disabled = false;
-    if (textarea.value.trim()) {
+    if ((usingSheets() ? sheetLinks : textarea).value.trim()) {
       previewLabel.textContent = 'Preview';
       svgContainer.innerHTML = `
         <div class="empty-state">
@@ -71,38 +88,101 @@ function renderPreview() {
   previewLabel.textContent = [deck, warning].filter(Boolean).join(' — ') || 'Preview';
 }
 
+function fillDeckSelect(options) {
+  const prev = deckSelect.value || load('deck');
+  deckSelect.parentElement.hidden = options.length < 2;
+  deckSelect.replaceChildren(...options.map(({ value, label }) => new Option(label, value)));
+  if (options.some(o => o.value === prev)) deckSelect.value = prev;
+}
+
 function refreshDeckList() {
-  const text  = textarea.value;
-  records     = parseData(text);
-  const decks = getDecks(records);
-  const prev  = deckSelect.value;
-  deckSelect.parentElement.hidden = decks.length < 2;
-
-  deckSelect.innerHTML = '';
-
-  for (const d of decks) {
-    const opt = document.createElement('option');
-    opt.value = d;
-    opt.textContent = d;
-    if (d === prev) opt.selected = true;
-    deckSelect.appendChild(opt);
-  }
-  // If previous selection disappeared, fall back to first deck
-  if (decks.length && !decks.includes(prev)) deckSelect.value = decks[0];
-
+  records = parseData(textarea.value);
+  fillDeckSelect(getDecks(records).map(d => ({ value: d, label: d })));
   renderPreview();
+}
+
+// ── Google Sheets ─────────────────────────────────────────────────────────────
+
+async function fetchText(url) {
+  const res = await fetch(url, { credentials: 'omit' });
+  if (!res.ok) throw new Error(`${res.status} ${url}`);
+  return res.text();
+}
+
+async function fetchTabs(link) {
+  const id = sheetId(link);
+  if (!id) throw new Error(`Not a Google Sheets link: ${link}`);
+  const tabs = parseTabs(await fetchText(`https://docs.google.com/spreadsheets/d/${id}/htmlview`));
+  const linkedTab = { name: 'Sheet', gid: link.match(/[#&?]gid=(\d+)/)?.[1] ?? '0' };
+  return (tabs.length ? tabs : [linkedTab]).map(tab => ({ id, ...tab }));
+}
+
+async function loadGuides() {
+  const links = sheetLinks.value.split('\n').map(l => l.trim()).filter(Boolean);
+  const failed = [];
+  const lists = await Promise.all(links.map(link => fetchTabs(link).catch(() => { failed.push(link); return []; })));
+  guides = lists.flat();
+  sheetStatus.textContent = failed.length
+    ? `Can't read ${failed.join(', ')}. Share it as "Anyone with the link can view".`
+    : '';
+  fillDeckSelect(guides.map(g => ({ value: guideKey(g), label: g.name })));
+  await loadGuide();
+}
+
+async function loadGuide() {
+  const guide = selectedGuide();
+  if (!guide) return renderPreview();
+  try {
+    const csv = await fetchText(`https://docs.google.com/spreadsheets/d/${guide.id}/export?format=csv&gid=${guide.gid}`);
+    if (guide !== selectedGuide()) return;
+    records = parseData(csv).map(r => ({ ...r, deck: guide.name }));
+  } catch {
+    sheetStatus.textContent = `Can't read the "${guide.name}" tab.`;
+  }
+  renderPreview();
+}
+
+function applySource() {
+  const sheets = usingSheets();
+  sheetsSection.hidden = !sheets;
+  pasteSection.hidden = sheets;
+  records = [];
+  if (sheets) loadGuides();
+  else refreshDeckList();
 }
 
 // ── Events ────────────────────────────────────────────────────────────────────
 
-// Debounce textarea input so we don't regenerate on every keystroke
-let debounceTimer;
-textarea.addEventListener('input', () => {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(refreshDeckList, 280);
+// Debounce typing so we don't regenerate or refetch on every keystroke
+function debounce(fn) {
+  let timer;
+  return () => { clearTimeout(timer); timer = setTimeout(fn, 280); };
+}
+
+textarea.addEventListener('input', debounce(refreshDeckList));
+
+sheetLinks.addEventListener('input', debounce(() => {
+  save('links', sheetLinks.value);
+  loadGuides();
+}));
+
+for (const radio of document.querySelectorAll('input[name="source"]')) {
+  radio.addEventListener('change', () => {
+    save('source', radio.value);
+    applySource();
+  });
+}
+
+// Google can't push sheet edits to this page, so refetch when the user comes back to it
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && usingSheets()) loadGuides();
 });
 
-deckSelect.addEventListener('change', renderPreview);
+deckSelect.addEventListener('change', () => {
+  save('deck', deckSelect.value);
+  if (usingSheets()) loadGuide();
+  else renderPreview();
+});
 namesOutside.addEventListener('change', renderPreview);
 
 // Download current SVG
@@ -123,4 +203,6 @@ function triggerDownload(blob, filename) {
   URL.revokeObjectURL(url);
 }
 
-refreshDeckList();
+sheetLinks.value = load('links');
+document.querySelector(`input[name="source"][value="${load('source') === 'paste' ? 'paste' : 'sheets'}"]`).checked = true;
+applySource();
