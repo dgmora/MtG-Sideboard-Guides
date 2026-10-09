@@ -44,6 +44,9 @@ const builtInNames = buildPivot(parseData('md,sb,Card,constructor\n1,,__proto__,
 assert.deepStrictEqual(labels(builtInNames), ['1 __proto__', '1 toString']);
 assert.deepStrictEqual(unbalanced(builtInNames), []);
 
+assert.deepStrictEqual(parseData('Date,Event,Opponent,Result,Notes\n2024-01-01,FNM,Elves,2-1,good'), []);
+assert.deepStrictEqual(parseData('<script>var a=[1,2,3,4,5]</script>'), []);
+
 const long = parseData('deck\topponent\tcard\tmaindeck\tdelta\nDnT\tDelver\tPath\t0\t+1');
 assert.deepStrictEqual(labels(buildPivot(long, 'DnT')), ['Path']);
 assert.deepStrictEqual(matchup(buildPivot(long, 'DnT'), 0), { Path: '+1' });

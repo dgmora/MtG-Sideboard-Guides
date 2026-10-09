@@ -4,14 +4,15 @@
  * Parse sideboard data into an array of records. Accepts two layouts, as CSV or TSV:
  *   long:   deck · opponent · card · maindeck (1/0) · delta, one row per change
  *   matrix: md · sb · <deck name> · opponent columns, as kept in a spreadsheet.
+ * Anything else, like a spreadsheet tab that isn't a guide, gives no records.
  */
 function parseData(text) {
   const rows = toRows(text);
   while (rows.length && !rows[0].some(c => c)) rows.shift();
-  if (rows.length && rows[0][0].toLowerCase() === 'md') {
-    return parseMatrix(rows);
-  }
-  return parseLong(rows);
+  const layout = rows[0]?.[0].toLowerCase();
+  if (layout === 'md') return parseMatrix(rows);
+  if (layout === 'deck') return parseLong(rows.slice(1));
+  return [];
 }
 
 /**
@@ -42,7 +43,7 @@ function toRows(text) {
 function parseLong(rows) {
   const records = [];
   for (const cells of rows) {
-    if (cells.length < 5 || !cells[0] || cells[0].toLowerCase() === 'deck') continue;
+    if (cells.length < 5 || !cells[0]) continue;
     records.push({
       deck:     cells[0],
       opponent: cells[1],
