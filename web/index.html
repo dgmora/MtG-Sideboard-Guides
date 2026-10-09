@@ -46,9 +46,16 @@
 
       <section class="format-guide">
         <details open>
-          <summary>Convert your current guide</summary>
-          <p>An AI assistant like Claude or ChatGPT can convert your guide into the format this page reads. Copy this prompt into a chat, then paste or upload your guide and your decklist with it: text, CSV, Excel or screenshots should all work.</p>
-          <p>It replies with a CSV to import into Google Sheets (File → Import) and a link that opens the guide on this page.</p>
+          <summary>How this works</summary>
+          <p>This page turns a sideboard guide kept in Google Sheets into a card you can print and keep in your deck box.</p>
+          <p>Keep one spreadsheet with a tab per deck, named after the deck. Start from <a href="https://docs.google.com/spreadsheets/d/1WIR-tiN7BKEBCsWVLKuTYCNr0JvIB0LWAHgC8mqeYLI/copy" target="_blank" rel="noopener">a copy of the template</a>, or convert the guide you already have with the prompt below. Share the spreadsheet as "Anyone with the link can view" and add its link above: every tab becomes a guide. Edit the sheet, come back to this page and the card updates.</p>
+          <p>Everything happens in your browser: we never see or store your spreadsheet. This page only remembers your links, on this device.</p>
+        </details>
+
+        <details>
+          <summary>Guide in another format?</summary>
+          <p>An AI assistant like Claude or ChatGPT can convert it. Copy this prompt into a chat, then paste or upload your guide and your decklist with it: text, CSV, Excel or screenshots should all work.</p>
+          <p>It replies with a CSV to import into a tab of your spreadsheet (File → Import) and a link that opens the guide on this page.</p>
           <pre id="convert-prompt" class="prompt">Convert the sideboard guide I'm attaching into a CSV for my Magic: The Gathering deck. I'm also attaching my decklist.
 
 Layout:
@@ -65,12 +72,6 @@ Reply with:
 2. This link with the CSV URL-encoded at the end: <span class="page-url"></span>?paste=
 Write line breaks as %0A, spaces as %20, &amp; as %26, # as %23, " as %22, ( as %28 and ) as %29. Use a code tool for this if you have one.</pre>
           <button id="copy-prompt" class="btn btn-secondary">Copy prompt</button>
-        </details>
-
-        <details>
-          <summary>Where to keep your guides</summary>
-          <p>Keep one spreadsheet with a tab per deck, named after the deck: import each CSV into its own tab, or start from <a href="https://docs.google.com/spreadsheets/d/1WIR-tiN7BKEBCsWVLKuTYCNr0JvIB0LWAHgC8mqeYLI/copy" target="_blank" rel="noopener">a copy of the template</a>. Share it as "Anyone with the link can view" and add its link above: every tab becomes a guide. Edit the sheet, come back to this page and the card updates.</p>
-          <p>Everything happens in your browser: we never see or store your spreadsheet. This page only remembers your links, on this device.</p>
         </details>
       </section>
     </aside>
