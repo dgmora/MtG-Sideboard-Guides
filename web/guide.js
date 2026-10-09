@@ -30,7 +30,7 @@ function toRows(text) {
       else if (ch === '"') quoted = false;
       else cell += ch;
     }
-    else if (ch === '"' && cell === '') quoted = true;
+    else if (ch === '"' && !cell.trim()) { quoted = true; cell = ''; }
     else if (ch === delimiter) { row.push(cell); cell = ''; }
     else if (ch === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; }
     else if (ch !== '\r') cell += ch;

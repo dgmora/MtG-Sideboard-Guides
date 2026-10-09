@@ -69,6 +69,7 @@ assert.deepStrictEqual(parseData(csv), records);
 
 const quoted = parseData('md,sb,X,Elves\n1,,"Jace, the Mind Sculptor",-1');
 assert.deepStrictEqual(labels(buildPivot(quoted, '')), ['1 Jace, the Mind Sculptor']);
+assert.deepStrictEqual(parseData('md, sb, X, Elves\n1, , "Jace, the Mind Sculptor", -1'), quoted);
 
 const pastedWithQuotes = parseData('md\tsb\tX\tElves\n1\t\t"Say ""Hi""\nTwice"\t-1');
 assert.deepStrictEqual(labels(buildPivot(pastedWithQuotes, '')), ['1 Say "Hi"\nTwice']);
