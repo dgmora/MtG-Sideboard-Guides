@@ -31,12 +31,13 @@ const usingSheets = () => document.querySelector('input[name="source"]:checked')
 const guideKey = guide => `${guide.id}:${guide.gid}`;
 const selectedGuide = () => guides.find(g => guideKey(g) === deckSelect.value);
 
+// Every dgmora.github.io project shares this storage, hence the prefix. Unprefixed keys predate it.
 function load(key) {
-  try { return localStorage.getItem(key) ?? ''; } catch { return ''; }
+  try { return localStorage.getItem(`sbg:${key}`) ?? localStorage.getItem(key) ?? ''; } catch { return ''; }
 }
 
 function save(key, value) {
-  try { localStorage.setItem(key, value); } catch {}
+  try { localStorage.setItem(`sbg:${key}`, value); } catch {}
 }
 
 function showExample() {
