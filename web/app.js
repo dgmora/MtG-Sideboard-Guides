@@ -40,10 +40,9 @@ function save(key, value) {
 }
 
 function showExample() {
-  const { cards, faces, data, firstSideboard } = buildPivot(parseData(EXAMPLE_SHEET), '');
   const example = document.getElementById('example-template').content.cloneNode(true);
   example.querySelector('.example-card').innerHTML =
-    generateCardSVG('', cards, faces, data, firstSideboard, namesOutside.checked);
+    generateCardSVG('', buildPivot(parseData(EXAMPLE_SHEET), ''), namesOutside.checked);
   svgContainer.replaceChildren(example);
 }
 
@@ -72,15 +71,13 @@ function renderPreview() {
     return;
   }
 
-  const { cards, faces, data, firstSideboard } = pivot;
-
-  currentSVG  = generateCardSVG(deck, cards, faces, data, firstSideboard, namesOutside.checked);
-  namesOutside.disabled = faces.length < 2;
+  currentSVG  = generateCardSVG(deck, pivot, namesOutside.checked);
+  namesOutside.disabled = pivot.faces.length < 2;
   currentDeck = deck;
   svgContainer.innerHTML = currentSVG;
   downloadBtn.disabled = false;
   shareBtn.disabled = false;
-  const offBalance = unbalanced(records, deck);
+  const offBalance = unbalanced(pivot);
   const warning = offBalance.length ? `Too many cards in: ${offBalance.join(', ')}` : '';
   previewLabel.textContent = [deck, warning].filter(Boolean).join(' — ') || 'Preview';
 }

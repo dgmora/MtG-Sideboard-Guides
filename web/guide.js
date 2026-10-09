@@ -65,40 +65,42 @@ function parseLong(rows) {
 function parseMatrix(rows) {
   const header = rows[0];
 
-  const columnFace = {};
+  const columns = [];
   let face = 0;
   for (let i = 3; i < header.length; i++) {
-    if (header[i]) columnFace[i] = face;
-    else if (Object.values(columnFace).includes(face)) face++;
+    if (header[i]) columns.push({ column: i, opponent: header[i], face });
+    else if (columns.at(-1)?.face === face) face++;
   }
+  const columnAt = new Map(columns.map(c => [c.column, c]));
 
   // Card-less records keep every opponent column, in header order, even without changes
-  const records = Object.keys(columnFace).map(i => ({ deck: '', opponent: header[i], face: columnFace[i], card: null }));
+  const records = columns.map(c => ({ deck: '', ...c, card: null }));
   let pastBlankRow = false;
-  for (const cells of rows.slice(1)) {
-    if (!cells.some(c => c)) { pastBlankRow = true; continue; }
+  rows.slice(1).forEach((cells, row) => {
+    if (!cells.some(c => c)) { pastBlankRow = true; return; }
     const md   = parseInt(cells[0], 10) || 0;
     const sb   = parseInt(cells[1], 10) || 0;
     const name = cells[2];
-    if (!name || name.toLowerCase() === 'total') continue;
+    if (!name || name.toLowerCase() === 'total') return;
 
     cells.forEach((value, i) => {
-      if (!(i in columnFace)) return;
+      const column = columnAt.get(i);
+      if (!column) return;
       const n = parseInt(value.replace(/[^0-9-]/g, ''), 10);
       if (!n) return;
       const fromSideboard = pastBlankRow || (sb > 0 && (n > 0 || md === 0));
       const count = fromSideboard ? sb || md : md;
       records.push({
         deck:     '',
-        opponent: header[i],
-        face:     columnFace[i],
+        ...column,
+        row,
         card:     count ? `${count} ${name}` : name,
         name,
         maindeck: fromSideboard ? 0 : 1,
         delta:    (n > 0 ? '+' : '') + n + (/[*?]/.test(value) ? '*' : ''),
       });
     });
-  }
+  });
   return records;
 }
 
@@ -118,64 +120,54 @@ function getDecks(records) {
 const MAX_FACE_MATCHUPS = 10;
 
 /**
- * Build a pivot table for one deck:
- *   cards          – rows, sorted maindeck-first then alphabetically
- *   decks          – opponent column headers, in order of first appearance
- *   data           – data[opponent][card] = delta string
- *   faces          – opponents split per card face
+ * Build the card table for one deck:
+ *   cards          – rows as { label, name, maindeck, values }, maindeck first, then
+ *                    alphabetical; values maps an opponent key to its change
+ *   faces          – opponents as { key, name }, split per card face
  *   firstSideboard – index of the first sideboard row, -1 if none
+ * Opponents are keyed by sheet column, so two columns with the same name stay apart.
  */
 function buildPivot(records, deckName) {
-  const allDeckRecords = records.filter(r => r.deck === deckName);
+  const deckRecords = records.filter(r => r.deck === deckName);
+  const opponentKey = r => r.column ?? r.opponent;
 
-  // Unique opponents in appearance order
-  const seenOpp = new Set();
-  const decks = [];
+  const opponents = new Map();
   const faces = [];
-  for (const r of allDeckRecords) {
-    if (seenOpp.has(r.opponent)) continue;
-    seenOpp.add(r.opponent);
-    decks.push(r.opponent);
-    (faces[r.face || 0] ||= []).push(r.opponent);
-  }
-  if (faces.length === 1 && decks.length > MAX_FACE_MATCHUPS) {
-    const half = Math.ceil(decks.length / 2);
-    faces.splice(0, 1, decks.slice(0, half), decks.slice(half));
-  }
-
-  const deckRecords = allDeckRecords.filter(r => r.card);
-  const cardInfo = {};
   for (const r of deckRecords) {
-    if (!(r.card in cardInfo)) cardInfo[r.card] = r;
+    if (opponents.has(opponentKey(r))) continue;
+    const opponent = { key: opponentKey(r), name: r.opponent };
+    opponents.set(opponent.key, opponent);
+    (faces[r.face || 0] ||= []).push(opponent);
+  }
+  if (faces.length === 1 && opponents.size > MAX_FACE_MATCHUPS) {
+    const half = Math.ceil(opponents.size / 2);
+    faces.splice(0, 1, faces[0].slice(0, half), faces[0].slice(half));
   }
 
-  // Sort: maindeck cards first, then sideboard-only; alphabetical within each group
-  const cards = Object.keys(cardInfo).sort((a, b) => {
-    if (cardInfo[b].maindeck !== cardInfo[a].maindeck) return cardInfo[b].maindeck - cardInfo[a].maindeck;
-    return cardInfo[a].name.localeCompare(cardInfo[b].name);
-  });
+  const rows = new Map();
+  for (const r of deckRecords.filter(r => r.card)) {
+    const key = `${r.row ?? r.card}|${r.maindeck}`;
+    if (!rows.has(key)) rows.set(key, { label: r.card, name: r.name, maindeck: r.maindeck, values: new Map() });
+    rows.get(key).values.set(opponentKey(r), r.delta);
+  }
+  const cards = [...rows.values()].sort((a, b) => b.maindeck - a.maindeck || a.name.localeCompare(b.name));
+  const firstSideboard = cards.findIndex(c => !c.maindeck);
 
-  // Build lookup: data[opponent][card] = delta
-  const data = {};
-  for (const d of decks) data[d] = {};
-  for (const r of deckRecords) data[r.opponent][r.card] = r.delta;
+  return { cards, faces, firstSideboard };
+}
 
-  const firstSideboard = cards.findIndex(c => !cardInfo[c].maindeck);
-
-  return { cards, decks, faces, data, firstSideboard };
+function matchupTotal(cards, opponent) {
+  return cards.reduce((sum, card) => sum + (parseInt(card.values.get(opponent.key), 10) || 0), 0);
 }
 
 /**
  * Matchups that bring in more cards than they take out, as "opponent +n".
  */
-function unbalanced(records, deckName) {
-  const totals = {};
-  for (const r of records.filter(r => r.deck === deckName)) {
-    totals[r.opponent] = (totals[r.opponent] || 0) + (parseInt(r.delta, 10) || 0);
-  }
-  return Object.entries(totals)
+function unbalanced({ cards, faces }) {
+  return faces.flat()
+    .map(opponent => [opponent.name, matchupTotal(cards, opponent)])
     .filter(([, n]) => n > 0)
-    .map(([opp, n]) => `${opp} +${n}`);
+    .map(([name, n]) => `${name} +${n}`);
 }
 
 // ─── SVG Generation ───────────────────────────────────────────────────────────
@@ -201,11 +193,6 @@ const FOLD = { font: 34, valueFont: 30, row: 46, col: 50, pad: 24, title: 64 };
 // ponytail: estimated sans-serif width, measure with getBBox if labels get clipped
 const textWidth = (s, size) => s.length * size * 0.56;
 
-/**
- * One 63 × 88 mm card face, or two side by side on a 126 × 88 mm sheet to fold
- * in the middle. Both faces share the same rows. With namesOutside, the right
- * face puts card names on its right edge. An empty title leaves no title row.
- */
 const EXAMPLE_SHEET = [
   ['md', 'sb', 'Card', 'Delver', 'Burn', 'Reanimator', 'Storm', '', 'Elves', 'Lands', 'Show and Tell', 'Eldrazi'],
   ['4', '', 'Swords to Plowshares', '', '', '', '-2', '', '', '-2', '-2'],
@@ -222,10 +209,16 @@ const EXAMPLE_SHEET = [
   ['', '2', 'Containment Priest', '', '', '', '', '', '', '', '+2'],
 ].map(row => row.join('\t')).join('\n');
 
-function generateCardSVG(title, cards, faces, data, firstSideboard, namesOutside = false) {
+/**
+ * One 63 × 88 mm card face, or two side by side on a 126 × 88 mm sheet to fold
+ * in the middle. Both faces share the same rows. With namesOutside, the right
+ * face puts card names on its right edge. An empty title leaves no title row.
+ */
+function generateCardSVG(title, { cards, faces, firstSideboard }, namesOutside = false) {
   const { font, row, col, pad } = FOLD;
-  const nameW   = Math.max(...[...cards, 'Total'].map(c => textWidth(c, font))) + 16;
-  const headerH = Math.max(...faces.flat().map(o => textWidth(o, font))) + 16;
+  const rowLabels = [...cards.map(c => c.label), 'Total'];
+  const nameW   = Math.max(...rowLabels.map(l => textWidth(l, font))) + 16;
+  const headerH = Math.max(...faces.flat().map(o => textWidth(o.name, font))) + 16;
   const faceW   = pad * 2 + nameW + Math.max(...faces.map(f => f.length)) * col;
   const tableY  = pad + (title ? FOLD.title : 0) + headerH;
   const faceH   = tableY + (cards.length + 1) * row + pad;
@@ -261,10 +254,9 @@ function generateCardSVG(title, cards, faces, data, firstSideboard, namesOutside
       const x = colsX + i * col;
       if (i % 2 === 0) lines.push(`    <rect x="${x + 2}" y="${tableY - headerH}" width="${col - 4}" height="${bottom - tableY + headerH}" fill="#ececec"/>`);
       const tx = x + col / 2 + font * 0.35;
-      lines.push(`    <text x="${tx}" y="${tableY - 8}" transform="rotate(-90,${tx},${tableY - 8})" font-size="${font}">${escapeXml(opp)}</text>`);
+      lines.push(`    <text x="${tx}" y="${tableY - 8}" transform="rotate(-90,${tx},${tableY - 8})" font-size="${font}">${escapeXml(opp.name)}</text>`);
     });
 
-    const rowLabels = [...cards, 'Total'];
     rowLabels.forEach((label, ri) => {
       const y = tableY + ri * row;
       const thick = (ri === firstSideboard && ri > 0) || ri === cards.length;
@@ -276,12 +268,12 @@ function generateCardSVG(title, cards, faces, data, firstSideboard, namesOutside
     opponents.forEach((opp, i) => {
       const cx = colsX + i * col + col / 2;
       cards.forEach((card, ri) => {
-        const value = data[opp][card];
+        const value = card.values.get(opp.key);
         if (!value) return;
         lines.push(`    <text x="${cx}" y="${tableY + ri * row + row * 0.7}" font-size="${FOLD.valueFont}" text-anchor="middle" ` +
           `style="${valueStyle(value)}">${escapeXml(value.replace('*', ''))}</text>`);
       });
-      const total = cards.reduce((sum, card) => sum + (parseInt(data[opp][card], 10) || 0), 0);
+      const total = matchupTotal(cards, opp);
       const style = total > 0 ? 'font-weight:bold;fill:#C00000' : 'fill:#888888';
       lines.push(`    <text x="${cx}" y="${tableY + cards.length * row + row * 0.7}" font-size="${FOLD.valueFont}" text-anchor="middle" ` +
         `style="${style}">${total > 0 ? '+' : ''}${total}</text>`);
@@ -326,18 +318,16 @@ function unescapeJs(str) {
  * One deck's guide as matrix CSV, leaving out anything else in its sheet.
  */
 function toMatrixCsv(records, deckName) {
-  const { cards, faces, data, firstSideboard } = buildPivot(records, deckName);
-  const info = Object.fromEntries(records.filter(r => r.deck === deckName && r.card).map(r => [r.card, r]));
-  const opponents = faces.flatMap((face, i) => (i ? ['', ...face] : face));
+  const { cards, faces, firstSideboard } = buildPivot(records, deckName);
+  const opponents = faces.flatMap((face, i) => (i ? [null, ...face] : face));
   const line = cells => cells.map(csvCell).join(',');
 
-  const lines = [line(['md', 'sb', 'Card', ...opponents])];
+  const lines = [line(['md', 'sb', 'Card', ...opponents.map(o => o?.name ?? '')])];
   cards.forEach((card, i) => {
     if (i === firstSideboard) lines.push('');
-    const { name, maindeck } = info[card];
-    const count = card.slice(0, card.length - name.length).trim();
-    const deltas = opponents.map(opp => (opp && data[opp][card]) || '');
-    lines.push(line([maindeck ? count : '', maindeck ? '' : count, name, ...deltas]));
+    const count = card.label.slice(0, card.label.length - card.name.length).trim();
+    const deltas = opponents.map(o => (o && card.values.get(o.key)) || '');
+    lines.push(line([card.maindeck ? count : '', card.maindeck ? '' : count, card.name, ...deltas]));
   });
   return lines.join('\n');
 }
