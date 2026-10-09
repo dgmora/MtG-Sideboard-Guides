@@ -201,10 +201,10 @@ for (const radio of document.querySelectorAll('input[name="source"]')) {
   });
 }
 
-// Google can't push sheet edits to this page, so refetch when the user comes back to it
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && usingSheets()) loadGuides();
-});
+// Google can't push sheet edits to this page, so refetch every minute and when the user comes back to it
+const refetchIfShown = () => { if (document.visibilityState === 'visible' && usingSheets()) loadGuides(); };
+document.addEventListener('visibilitychange', refetchIfShown);
+setInterval(refetchIfShown, 60000);
 
 setInterval(showLoadedAt, 1000);
 

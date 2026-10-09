@@ -8,7 +8,7 @@ Turns a sideboard guide kept in Google Sheets into a card you can print and keep
 
 ## How it works
 
-Keep one spreadsheet with a tab per deck, named after the deck. Start from the template linked on the page, share the spreadsheet as "Anyone with the link can view" and add its link: every tab becomes a guide. Edit the sheet, come back, and the card updates. You can also paste a sheet or CSV directly.
+Keep one spreadsheet with a tab per deck, named after the deck. Start from the template linked on the page, share the spreadsheet as "Anyone with the link can view" and add its link: every tab becomes a guide. Edit the sheet and the card catches up within a minute. You can also paste a sheet or CSV directly.
 
 Each half of the guide is a 63 × 88 mm Magic card. Red numbers are cards to take out, green ones cards to bring in, and a `*` marks optional swaps. Guides with many matchups fold into two halves. Download the SVG and print it at 100% scale.
 
