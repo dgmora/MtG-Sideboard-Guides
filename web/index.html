@@ -30,7 +30,7 @@
 
         <div class="button-row">
           <button id="load-btn" class="btn btn-secondary">Load File</button>
-          <input type="file" id="file-input" accept=".txt,.tsv" style="display:none">
+          <input type="file" id="file-input" accept=".csv,.tsv,.txt" style="display:none">
           <button id="save-btn" class="btn btn-secondary">Save Data</button>
         </div>
       </div>
@@ -38,11 +38,14 @@
       <div class="textarea-wrapper">
         <label for="data-input">
           Sideboard Data
-          <span class="label-hint">TSV: deck · opponent · card · maindeck · delta</span>
+          <span class="label-hint">CSV or TSV</span>
         </label>
-        <textarea id="data-input" spellcheck="false" placeholder="Paste your sideboards.txt data here, or click Load File.
+        <textarea id="data-input" spellcheck="false" placeholder="Paste cells copied from Google Sheets here, or click Load File to open a CSV.
 
-Expected format (tab-separated):
+Spreadsheet layout, one row per card:
+md	sb	Deck name	Opponent 1	Opponent 2	…
+
+Or one row per change:
 deck	opponent	card	maindeck	delta
 
 Example:

@@ -1,32 +1,54 @@
 // ─── Data Parsing ─────────────────────────────────────────────────────────────
 
 /**
- * Parse sideboard data into an array of records. Accepts two tab-separated layouts:
+ * Parse sideboard data into an array of records. Accepts two layouts, as CSV or TSV:
  *   long:   deck · opponent · card · maindeck (1/0) · delta, one row per change
  *   matrix: md · sb · <deck name> · opponent columns, as kept in a spreadsheet.
  */
 function parseData(text) {
-  const lines = text.split('\n').filter(l => l.trim());
-  if (lines.length && lines[0].split('\t')[0].trim().toLowerCase() === 'md') {
-    return parseMatrix(lines);
+  const rows = toRows(text);
+  if (rows.length && rows[0][0].toLowerCase() === 'md') {
+    return parseMatrix(rows);
   }
-  return parseLong(lines);
+  return parseLong(rows);
 }
 
-function parseLong(lines) {
+/**
+ * Split text into trimmed cells: tab-separated if the first line has a tab,
+ * comma-separated otherwise. Quoted cells may hold delimiters, newlines and "".
+ */
+function toRows(text) {
+  const delimiter = text.split('\n', 1)[0].includes('\t') ? '\t' : ',';
+  const rows = [];
+  let row = [], cell = '', quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (quoted) {
+      if (ch === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+      else if (ch === '"') quoted = false;
+      else cell += ch;
+    }
+    else if (ch === '"' && cell === '') quoted = true;
+    else if (ch === delimiter) { row.push(cell); cell = ''; }
+    else if (ch === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; }
+    else if (ch !== '\r') cell += ch;
+  }
+  row.push(cell);
+  rows.push(row);
+  return rows.map(r => r.map(c => c.trim())).filter(r => r.some(c => c));
+}
+
+function parseLong(rows) {
   const records = [];
-  for (const line of lines) {
-    const parts = line.split('\t');
-    if (parts.length < 5) continue;
-    if (parts[0].trim().toLowerCase() === 'deck') continue; // header row
-    const card = parts[2].trim();
+  for (const cells of rows) {
+    if (cells.length < 5 || cells[0].toLowerCase() === 'deck') continue;
     records.push({
-      deck:     parts[0].trim(),
-      opponent: parts[1].trim(),
-      card,
-      name:     card,
-      maindeck: parseInt(parts[3].trim(), 10) || 0,
-      delta:    parts[4].trim(),
+      deck:     cells[0],
+      opponent: cells[1],
+      card:     cells[2],
+      name:     cells[2],
+      maindeck: parseInt(cells[3], 10) || 0,
+      delta:    cells[4],
     });
   }
   return records;
@@ -38,8 +60,8 @@ function parseLong(lines) {
  * the main copies, additions from the sideboard.
  * A '*' or '?' on a value marks an optional change.
  */
-function parseMatrix(lines) {
-  const header = lines[0].split('\t').map(s => s.trim());
+function parseMatrix(rows) {
+  const header = rows[0];
   const title  = header[2];
 
   const columnFace = {};
@@ -51,8 +73,7 @@ function parseMatrix(lines) {
 
   // Card-less records keep every opponent column, in header order, even without changes
   const records = Object.keys(columnFace).map(i => ({ deck: title, opponent: header[i], face: columnFace[i], card: null }));
-  for (const line of lines.slice(1)) {
-    const cells = line.split('\t').map(s => s.trim());
+  for (const cells of rows.slice(1)) {
     const md   = parseInt(cells[0], 10) || 0;
     const sb   = parseInt(cells[1], 10) || 0;
     const name = cells[2];

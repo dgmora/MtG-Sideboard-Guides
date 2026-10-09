@@ -28,4 +28,20 @@ assert.deepStrictEqual(unbalanced(parseData('md\tsb\tX\tElves\tAluren\n4\t\tIsla
 const long = parseData('deck\topponent\tcard\tmaindeck\tdelta\nDnT\tDelver\tPath\t0\t+1');
 assert.deepStrictEqual(buildPivot(long, 'DnT').cards, ['Path']);
 
+const csv = [
+  'md,sb,Example,Stasis,Elves,,Goblins',
+  '1,2,Abeyance,2,,,-1',
+  '4,,Swords to Plowshares,-4',
+  ',4,Meddling Mage,+2*,,,1',
+  ',,,,,,',
+  ',,Total,"=SUM(D2:D4,0)",,"=SUM(F2:F4,0)"',
+].join('\r\n');
+assert.deepStrictEqual(parseData(csv), records);
+
+const quoted = parseData('md,sb,X,Elves\n1,,"Jace, the Mind Sculptor",-1');
+assert.deepStrictEqual(buildPivot(quoted, 'X').cards, ['1 Jace, the Mind Sculptor']);
+
+const pastedWithQuotes = parseData('md\tsb\tX\tElves\n1\t\t"Say ""Hi""\nTwice"\t-1');
+assert.deepStrictEqual(buildPivot(pastedWithQuotes, 'X').cards, ['1 Say "Hi"\nTwice']);
+
 console.log('ok');
