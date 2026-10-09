@@ -162,7 +162,6 @@ function applySource() {
 
 // ── Events ────────────────────────────────────────────────────────────────────
 
-// Debounce typing so we don't regenerate or refetch on every keystroke
 function debounce(fn) {
   let timer;
   return () => { clearTimeout(timer); timer = setTimeout(fn, 280); };
@@ -194,7 +193,6 @@ deckSelect.addEventListener('change', () => {
 });
 namesOutside.addEventListener('change', renderPreview);
 
-// Download current SVG
 downloadBtn.addEventListener('click', () => {
   if (!currentSVG) return;
   triggerDownload(
