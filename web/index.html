@@ -92,19 +92,31 @@ Write line breaks as %0A, spaces as %20, % as %25, + as %2B, &amp; as %26, # as 
         <span id="preview-label" class="preview-title">Preview</span>
         <div class="preview-actions">
           <button id="share-btn" class="btn btn-secondary" popovertarget="share-menu" disabled>Share guide…</button>
-          <button id="download-btn" class="btn btn-primary" disabled>Download SVG</button>
+          <button id="download-btn" class="btn btn-primary" popovertarget="download-menu" disabled>Download…</button>
         </div>
       </div>
 
-      <div id="share-menu" class="share-menu" popover>
-        <p class="share-title">Share this guide</p>
-        <button id="share-live" class="share-option">
-          <span class="share-option-name">Live link</span>
-          <span class="share-option-text">Opens your spreadsheet, so your later edits show up too. Anyone with the link can open the whole spreadsheet, every tab included.</span>
+      <div id="download-menu" class="menu" popover>
+        <p class="menu-title">Download this guide</p>
+        <button id="download-pdf" class="menu-option">
+          <span class="menu-option-name">PDF for printing</span>
+          <span class="menu-option-text">The guide at its real size, 63 × 88 mm per card. Print it on A4 or Letter paper at 100% scale.</span>
         </button>
-        <button id="share-snapshot" class="share-option">
-          <span class="share-option-name">Snapshot</span>
-          <span class="share-option-text">The guide as it is right now, stored in the link itself. Nobody sees your spreadsheet, and later edits don't show up.</span>
+        <button id="download-svg" class="menu-option">
+          <span class="menu-option-name">SVG</span>
+          <span class="menu-option-text">The same guide as a vector image. Print it from your browser at 100% scale, or edit it in Inkscape or Illustrator.</span>
+        </button>
+      </div>
+
+      <div id="share-menu" class="menu" popover>
+        <p class="menu-title">Share this guide</p>
+        <button id="share-live" class="menu-option">
+          <span class="menu-option-name">Live link</span>
+          <span class="menu-option-text">Opens your spreadsheet, so your later edits show up too. Anyone with the link can open the whole spreadsheet, every tab included.</span>
+        </button>
+        <button id="share-snapshot" class="menu-option">
+          <span class="menu-option-name">Snapshot</span>
+          <span class="menu-option-text">The guide as it is right now, stored in the link itself. Nobody sees your spreadsheet, and later edits don't show up.</span>
         </button>
       </div>
 
@@ -123,7 +135,7 @@ Write line breaks as %0A, spaces as %20, % as %25, + as %2B, &amp; as %26, # as 
             <li><b>Colours</b>: red numbers are cards to take out, green ones cards to bring in. Faded italics mark optional swaps (a <b>*</b> in your sheet).</li>
             <li><b>Sideboard</b>: cards below the thick line are your sideboard. Each card shows how many copies you have.</li>
             <li><b>Total</b>: the bottom row adds up each matchup. It turns red when you bring in more cards than you take out.</li>
-            <li><b>Printing</b>: download the SVG, open it in your browser and print at 100% scale ("Actual size", not "Fit to page"). Measure the first copy, as some printers shrink it slightly. Google Docs can't keep the size. To edit the guide, open the SVG in Inkscape or Illustrator.</li>
+            <li><b>Printing</b>: download the PDF and print it on A4 or Letter paper at 100% scale. Measure the first copy, as some printers shrink it slightly. To edit the guide, download the SVG and open it in Inkscape or Illustrator.</li>
           </ul>
         </div>
       </template>
@@ -131,6 +143,7 @@ Write line breaks as %0A, spaces as %20, % as %25, + as %2B, &amp; as %26, # as 
 
   </div>
   <script src="guide.js"></script>
+  <script src="pdf.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
