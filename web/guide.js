@@ -16,11 +16,12 @@ function parseData(text) {
 }
 
 /**
- * Split text into trimmed cells: tab-separated if the first line has a tab,
- * comma-separated otherwise. Quoted cells may hold delimiters, newlines and "".
+ * Split text into trimmed cells: tab-separated if the first non-blank line has
+ * a tab, comma-separated otherwise. Quoted cells may hold delimiters, newlines and "".
  */
 function toRows(text) {
-  const delimiter = text.split('\n', 1)[0].includes('\t') ? '\t' : ',';
+  const firstLine = text.split('\n').find(line => line.trim()) ?? '';
+  const delimiter = firstLine.includes('\t') ? '\t' : ',';
   const rows = [];
   let row = [], cell = '', quoted = false;
   for (let i = 0; i < text.length; i++) {

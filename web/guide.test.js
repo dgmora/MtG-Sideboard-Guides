@@ -74,6 +74,8 @@ assert.deepStrictEqual(parseData('md, sb, X, Elves\n1, , "Jace, the Mind Sculpto
 const pastedWithQuotes = parseData('md\tsb\tX\tElves\n1\t\t"Say ""Hi""\nTwice"\t-1');
 assert.deepStrictEqual(labels(buildPivot(pastedWithQuotes, '')), ['1 Say "Hi"\nTwice']);
 
+assert.deepStrictEqual(labels(buildPivot(parseData('\nmd\tsb\tCard\tElves\n4\t\tIsland\t-1'), '')), ['4 Island']);
+
 const blankRowSplit = buildPivot(parseData([
   'md\tsb\tCard\tElves',
   '4\t\tIsland\t-2',
